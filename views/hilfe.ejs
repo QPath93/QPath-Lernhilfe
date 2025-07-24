@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title><%= hilfe.title %></title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Light Mode */
+    body.light {
+      background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
+      color: #333;
+    }
+    body.light .container {
+      background: #fff;
+      color: #333;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    body.light .accordion {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+    body.light .accordion-header {
+      background: #f3f4f6;
+    }
+    body.light .accordion-content {
+      background: #fff;
+    }
+
+    /* Dark Mode */
+    body.dark {
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: #e5e7eb;
+    }
+    body.dark .container {
+      background: #1f2937;
+      color: #f3f4f6;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    body.dark .accordion {
+      background: #111827;
+      border: 1px solid #4b5563;
+    }
+    body.dark .accordion-header {
+      background: #374151;
+    }
+    body.dark .accordion-content {
+      background: #1f2937;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 90%;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 12px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    img.logo {
+      max-width: 150px;
+      display: block;
+      margin: 0 auto 10px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .accordion {
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 15px;
+      transition: background 0.3s, border 0.3s;
+    }
+
+    .accordion-header {
+      padding: 12px 15px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .accordion-header:hover {
+      opacity: 0.9;
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 15px;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      transition: background 0.3s;
+    }
+
+    img.help-image {
+      max-width: 100%;
+      margin-top: 10px;
+      display: block;
+      border-radius: 8px;
+    }
+
+    .locked {
+      color: #f87171;
+      font-style: italic;
+    }
+    .error {
+      color: #f87171;
+    }
+
+    a.btn-back {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      background: #3b82f6;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    a.btn-back:hover {
+      background: #2563eb;
+    }
+
+    /* Theme-Schalter */
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.1);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+      backdrop-filter: blur(4px);
+    }
+    body.light .theme-toggle {
+      background: rgba(0,0,0,0.1);
+      color: #111;
+    }
+    body.dark .theme-toggle {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    .theme-toggle:hover {
+      background: rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body class="light">
+  <!-- Theme Schalter -->
+  <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+
+  <div class="container">
+    <!-- Logo + Branding -->
+    <img src="/logo.png" alt="Firmenlogo" class="logo">
+    <h1></h1>
+
+    <h2><%= hilfe.title %></h2>
+
+    <% hilfe.hilfen.forEach((h, idx) => { %>
+      <div class="accordion">
+        <div class="accordion-header">
+          <%= h.name %> <% if (h.locked && !unlocked[idx]) { %> 🔒 <% } %>
+        </div>
+        <div class="accordion-content">
+          <% if (h.locked && !unlocked[idx]) { %>
+            <p class="locked">Diese Hilfe ist gesperrt</p>
+            <form method="POST" action="/hilfe/<%= hilfe.id %>/unlock/<%= idx %>">
+              <input type="password" name="code" placeholder="Entsperrcode" required />
+              <button>Entsperren</button>
+            </form>
+            <% if (errors && errors[idx]) { %>
+              <p class="error"><%= errors[idx] %></p>
+            <% } %>
+          <% } else { %>
+            <p><%= h.content %></p>
+
+            <% if (h.files && h.files.length > 0) { %>
+              <% h.files.forEach(file => { %>
+                <% if (file.isImage) { %>
+                  <img src="/<%= file.path %>" alt="<%= file.name %>" class="help-image">
+                <% } else { %>
+                  📎 <a href="/<%= file.path %>" target="_blank"><%= file.name %></a><br>
+                <% } %>
+              <% }) %>
+            <% } %>
+          <% } %>
+        </div>
+      </div>
+    <% }) %>
+
+    <div style="text-align:center;">
+      <a href="/" class="btn-back">⬅️ Zurück zur Startseite</a>
+    </div>
+  </div>
+
+  <script>
+    // Akkordeon
+    const headers = document.querySelectorAll('.accordion-header');
+    headers.forEach(header => {
+      header.addEventListener('click', () => {
+        const content = header.nextElementSibling;
+        document.querySelectorAll('.accordion-content').forEach(c => {
+          if (c !== content) c.style.display = 'none';
+        });
+        content.style.display = content.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.remove('light');
+      body.classList.add('dark');
+      themeToggle.textContent = '☀️ Light Mode';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      if (body.classList.contains('light')) {
+        body.classList.remove('light');
+        body.classList.add('dark');
+        themeToggle.textContent = '☀️ Light Mode';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.remove('dark');
+        body.classList.add('light');
+        themeToggle.textContent = '🌙 Dark Mode';
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  </script>
+</body>
+</html>

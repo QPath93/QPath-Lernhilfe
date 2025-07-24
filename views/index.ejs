@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Meine Lernhilfe</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Light Mode */
+    body.light {
+      background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
+      color: #333;
+    }
+    body.light .container {
+      background: #fff;
+      color: #333;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    body.light input,
+    body.light textarea {
+      background: #fff;
+      color: #111;
+      border: 1px solid #ccc;
+    }
+    body.light .hilfe-block {
+      background: #fafafa;
+      border: 1px solid #e5e7eb;
+    }
+    body.light .dropzone {
+      border: 2px dashed #3b82f6;
+      background: #f9fafb;
+      color: #555;
+    }
+
+    /* Dark Mode */
+    body.dark {
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: #e5e7eb;
+    }
+    body.dark .container {
+      background: #1f2937;
+      color: #f3f4f6;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    body.dark input,
+    body.dark textarea {
+      background: #374151;
+      color: #f9fafb;
+      border: 1px solid #4b5563;
+    }
+    body.dark .hilfe-block {
+      background: #111827;
+      border: 1px solid #4b5563;
+    }
+    body.dark .dropzone {
+      border: 2px dashed #60a5fa;
+      background: #1f2937;
+      color: #aaa;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 90%;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 12px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin: 15px 0 5px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-family: inherit;
+      transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .hilfe-block {
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      position: relative;
+      transition: background 0.3s, border 0.3s;
+    }
+
+    .remove-hilfe {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .remove-hilfe:hover {
+      background: #dc2626;
+    }
+
+    .actions {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    button,
+    .btn {
+      display: inline-block;
+      background: #3b82f6;
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+
+    button:hover,
+    .btn:hover {
+      background: #2563eb;
+    }
+
+    .add-hilfe {
+      background: #10b981;
+      margin-bottom: 10px;
+    }
+    .add-hilfe:hover {
+      background: #059669;
+    }
+
+    /* Theme-Schalter */
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.1);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+      backdrop-filter: blur(4px);
+    }
+    body.light .theme-toggle {
+      background: rgba(0,0,0,0.1);
+      color: #111;
+    }
+    body.dark .theme-toggle {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+    .theme-toggle:hover {
+      background: rgba(0,0,0,0.2);
+    }
+
+    /* Tooltip */
+    .tooltip-container {
+      display: inline-block;
+      position: relative;
+      margin-left: 6px;
+    }
+    .tooltip-icon {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      background: #3b82f6; /* Blau */
+      color: #fff;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 18px;
+      border-radius: 50%;
+      cursor: help;
+    }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      width: 260px;
+      background: #111827;
+      color: #fff;
+      text-align: left;
+      padding: 8px;
+      border-radius: 6px;
+      position: absolute;
+      z-index: 10;
+      bottom: 130%; /* Tooltip über dem Icon */
+      left: 50%;
+      transform: translateX(-50%);
+      transition: opacity 0.3s ease;
+      font-size: 12px;
+    }
+    .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #111827 transparent transparent transparent;
+    }
+    .tooltip-container:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Drag & Drop */
+    .dropzone {
+      margin-top: 10px;
+      padding: 20px;
+      text-align: center;
+      border-radius: 8px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .dropzone.dragover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: #2563eb;
+    }
+  </style>
+</head>
+<body class="light">
+  <!-- Darkmode/Lightmode Schalter -->
+  <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+
+  <div class="container">
+    <!-- Logo + neue Überschrift -->
+    <div style="text-align:center; margin-bottom: 20px;">
+      <img src="/logo.png" alt="Firmenlogo" style="max-width: 150px; margin-bottom: 10px;">
+      <h1 style="margin:0;">Meine Lernhilfe</h1>
+    </div>
+
+    <form action="/create" method="POST" enctype="multipart/form-data" id="form">
+      <label for="title">Titel der Lernhilfe</label>
+      <input type="text" name="title" id="title" placeholder="z.B. Mathe - Bruchrechnen" required>
+
+      <div id="hilfen-container">
+        <div class="hilfe-block" data-index="0">
+          <button type="button" class="remove-hilfe" style="display:none;">❌ Entfernen</button>
+
+          <label>Name der Hilfe</label>
+          <input type="text" name="hilfen[0][name]" placeholder="Titel der Hilfe">
+
+          <label>Inhalt</label>
+          <textarea name="hilfen[0][content]" placeholder="Beschreibung oder Erklärung"></textarea>
+
+          <label>
+            <input type="checkbox" name="hilfen[0][locked]">
+            Diese Hilfe mit Code sperren
+          </label>
+
+          <label>
+            Entsperrcode (optional)
+            <span class="tooltip-container">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-text">
+                Mit der Codesperre können Hilfen gesperrt werden. Erst nach Eingabe eines gültigen Codes können Hilfen ausgeklappt werden. Für jede Hilfe kann ein individueller Code erstellt werden.
+              </span>
+            </span>
+          </label>
+          <input type="password" name="hilfen[0][lockCode]" placeholder="Code eingeben">
+
+          <label>Datei anhängen (Bild oder andere Datei)</label>
+          <input type="file" name="hilfen[0][file]" class="file-input" multiple>
+
+          <!-- Drag&Drop-Zone -->
+          <div class="dropzone" data-index="0">
+            Dateien hierher ziehen oder klicken
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="add-hilfe">+ Weitere Hilfe hinzufügen</button>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn">✅ Lernhilfe erstellen</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // --- Theme Toggle ---
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.remove('light');
+      body.classList.add('dark');
+      themeToggle.textContent = '☀️ Light Mode';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      if (body.classList.contains('light')) {
+        body.classList.remove('light');
+        body.classList.add('dark');
+        themeToggle.textContent = '☀️ Light Mode';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.remove('dark');
+        body.classList.add('light');
+        themeToggle.textContent = '🌙 Dark Mode';
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+    // --- Dynamisches Hinzufügen & Entfernen ---
+    let hilfenIndex = 1;
+    document.querySelector('.add-hilfe').addEventListener('click', () => {
+      const container = document.getElementById('hilfen-container');
+      const div = document.createElement('div');
+      div.className = 'hilfe-block';
+      div.setAttribute('data-index', hilfenIndex);
+
+      div.innerHTML = `
+        <button type="button" class="remove-hilfe">❌ Entfernen</button>
+
+        <label>Name der Hilfe</label>
+        <input type="text" name="hilfen[${hilfenIndex}][name]" placeholder="Titel der Hilfe">
+
+        <label>Inhalt</label>
+        <textarea name="hilfen[${hilfenIndex}][content]" placeholder="Beschreibung oder Erklärung"></textarea>
+
+        <label>
+          <input type="checkbox" name="hilfen[${hilfenIndex}][locked]">
+          Diese Hilfe mit Code sperren
+        </label>
+
+        <label>
+          Entsperrcode (optional)
+          <span class="tooltip-container">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-text">
+              Mit der Codesperre können Hilfen gesperrt werden. Erst nach Eingabe eines gültigen Codes können Hilfen ausgeklappt werden. Für jede Hilfe kann ein individueller Code erstellt werden.
+            </span>
+          </span>
+        </label>
+        <input type="password" name="hilfen[${hilfenIndex}][lockCode]" placeholder="Code eingeben">
+
+        <label>Datei anhängen (Bild oder andere Datei)</label>
+        <input type="file" name="hilfen[${hilfenIndex}][file]" class="file-input" multiple>
+
+        <div class="dropzone" data-index="${hilfenIndex}">
+          Dateien hierher ziehen oder klicken
+        </div>
+      `;
+      container.appendChild(div);
+      hilfenIndex++;
+    });
+
+    // Entfernen
+    document.getElementById('hilfen-container').addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove-hilfe')) {
+        e.target.parentElement.remove();
+      }
+    });
+
+    // --- Drag&Drop Handler ---
+    function initDropzones() {
+      document.querySelectorAll('.dropzone').forEach(dropzone => {
+        dropzone.addEventListener('click', () => {
+          dropzone.previousElementSibling.click(); // Klick auf verstecktes File-Input
+        });
+
+        dropzone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+          dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropzone.classList.remove('dragover');
+          const input = dropzone.previousElementSibling;
+          input.files = e.dataTransfer.files; // Setze gedroppte Dateien
+        });
+      });
+    }
+
+    // Initial einmal Dropzones aktivieren
+    initDropzones();
+
+    // MutationObserver: Neue Hilfen = neue Dropzones aktivieren
+    const observer = new MutationObserver(() => initDropzones());
+    observer.observe(document.getElementById('hilfen-container'), { childList: true });
+  </script>
+</body>
+</html>
