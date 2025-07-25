@@ -142,6 +142,15 @@
     .theme-toggle:hover {
       background: rgba(0,0,0,0.2);
     }
+
+    .arrow {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .arrow.rotated {
+      transform: rotate(-90deg);
+    }
   </style>
 </head>
 <body class="light">
@@ -156,7 +165,7 @@
       <div class="hilfe-item">
         <div class="hilfe-header" onclick="toggleHilfe(<%= idx %>)">
           <span><%= h.name %></span>
-          <span>▼</span>
+          <span class="arrow" id="arrow-<%= idx %>">◀</span>
         </div>
 
         <% if (h.locked && !unlocked[idx]) { %>
@@ -213,13 +222,17 @@
   <script>
     // Auf- und Zuklappen der Hilfen
     function toggleHilfe(index) {
-      const content = document.getElementById('hilfe-' + index);
-      if (content.style.display === 'block') {
-        content.style.display = 'none';
-      } else {
-        content.style.display = 'block';
-      }
-    }
+  const content = document.getElementById('hilfe-' + index);
+  const arrow = document.getElementById('arrow-' + index);
+
+  if (content.style.display === 'block') {
+    content.style.display = 'none';
+    arrow.classList.remove('rotated');
+  } else {
+    content.style.display = 'block';
+    arrow.classList.add('rotated');
+  }
+}
 
     // Dark/Light Mode Toggle
     const themeToggle = document.getElementById('themeToggle');
