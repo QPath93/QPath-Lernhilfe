@@ -8,15 +8,20 @@ const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// BASE_URL für QR-Codes – lokal localhost, online Render-URL
-const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
-
-// Pfad zur JSON-Datenbank
 const DATA_FILE = path.join(__dirname, 'data.json');
 
-// Multer Setup für Datei-Uploads (Speicherung in /public/uploads)
-const upload = multer({ dest: path.join(__dirname, 'public/uploads') });
+// ✅ Multer so konfigurieren, dass Dateien MIT Endung gespeichert werden
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, 'public/uploads'));
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname); // Dateiendung (.png, .pdf, .docx)
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, unique + ext); // -> z.B. 1691234567890-123456789.png
+  }
+});
+const upload = multer({ storage: storage });
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -43,7 +48,7 @@ app.get('/', (req, res) => {
   res.render('index'); // index.ejs
 });
 
-// --- Lernhilfe erstellen ---
+// --- Lernhilfe speichern ---
 app.post('/create', upload.any(), (req, res) => {
   const { title } = req.body;
   const hilfenInput = req.body.hilfen || {};
@@ -53,12 +58,18 @@ app.post('/create', upload.any(), (req, res) => {
 
   Object.keys(hilfenInput).forEach(index => {
     const h = hilfenInput[index];
+
+    // locked ist "on" wenn Checkbox gesetzt
     const locked = h.locked === 'on' || h.locked === true || h.locked === 'true';
     const lockCode = locked ? h.lockCode?.trim() || null : null;
 
+    // Dateien filtern, die zu diesem Hilfenindex gehören + Originalname speichern
     const filesForHelp = files
       .filter(f => f.fieldname === `hilfen[${index}][file]`)
-      .map(f => `uploads/${f.filename}`);
+      .map(f => ({
+        path: `uploads/${f.filename}`,      // Speicherpfad inkl. Endung
+        original: f.originalname            // echter Name wie hochgeladen
+      }));
 
     hilfenArray.push({
       name: h.name || `Hilfe ${parseInt(index) + 1}`,
@@ -78,12 +89,10 @@ app.post('/create', upload.any(), (req, res) => {
   data[id] = { id, title, hilfen: hilfenArray };
   saveData(data);
 
-  // ✅ Korrekte URL je nach Umgebung (lokal/online)
-  const url = `${BASE_URL}/hilfe/${id}`;
+  const url = `${req.protocol}://${req.get('host')}/hilfe/${id}`;
 
-  // ✅ QR-Code erzeugen
-  QRCode.toDataURL(url).then(qrImage => {
-    res.render('success', { url, qrImage }); // success.ejs anzeigen
+  QRCode.toDataURL(url, { width: 500, margin: 2 }).then(qrImage => {
+    res.render('success', { url, qrImage });
   }).catch(err => {
     res.send('QR-Code Fehler: ' + err.message);
   });
@@ -102,7 +111,7 @@ app.get('/hilfe/:id', (req, res) => {
   if (!req.session.unlocked) req.session.unlocked = {};
   if (!req.session.unlocked[hilfe.id]) req.session.unlocked[hilfe.id] = {};
 
-  // Für EJS: array von booleans, ob Hilfen freigeschaltet sind
+  // Array von Booleans, ob Hilfen freigeschaltet sind
   const unlocked = hilfe.hilfen.map((_, idx) => !!req.session.unlocked[hilfe.id][idx]);
 
   res.render('hilfe', { hilfe, unlocked, errors: {} });
@@ -142,5 +151,5 @@ app.post('/hilfe/:id/unlock/:index', (req, res) => {
 
 // --- Server starten ---
 app.listen(PORT, () => {
-  console.log(`✅ Server läuft auf ${BASE_URL}`);
+  console.log(`Server läuft auf http://localhost:${PORT}`);
 });

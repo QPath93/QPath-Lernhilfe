@@ -10,10 +10,6 @@
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
       transition: background 0.3s, color 0.3s;
     }
 
@@ -27,16 +23,6 @@
       color: #333;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     }
-    body.light .accordion {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-    }
-    body.light .accordion-header {
-      background: #f3f4f6;
-    }
-    body.light .accordion-content {
-      background: #fff;
-    }
 
     /* Dark Mode */
     body.dark {
@@ -48,30 +34,19 @@
       color: #f3f4f6;
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
-    body.dark .accordion {
-      background: #111827;
-      border: 1px solid #4b5563;
-    }
-    body.dark .accordion-header {
-      background: #374151;
-    }
-    body.dark .accordion-content {
-      background: #1f2937;
-    }
 
     .container {
       max-width: 800px;
-      width: 90%;
       margin: 40px auto;
       padding: 30px;
       border-radius: 12px;
       transition: background 0.3s, color 0.3s;
     }
 
-    img.logo {
-      max-width: 150px;
+    .logo {
       display: block;
-      margin: 0 auto 10px;
+      margin: 0 auto 15px;
+      max-width: 160px;
     }
 
     h1 {
@@ -80,62 +55,69 @@
       font-weight: 600;
     }
 
-    .accordion {
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 15px;
-      transition: background 0.3s, border 0.3s;
+    .hilfe-item {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #4b5563;
+      padding-bottom: 10px;
     }
 
-    .accordion-header {
-      padding: 12px 15px;
+    .hilfe-header {
+      font-size: 18px;
+      font-weight: 600;
       cursor: pointer;
-      font-weight: 600;
-      transition: background 0.3s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(59,130,246,0.1);
+      transition: background 0.2s;
+    }
+    .hilfe-header:hover {
+      background: rgba(59,130,246,0.2);
     }
 
-    .accordion-header:hover {
-      opacity: 0.9;
-    }
-
-    .accordion-content {
+    .hilfe-content {
       display: none;
-      padding: 15px;
-      border-top: 1px solid rgba(0,0,0,0.1);
-      transition: background 0.3s;
-    }
-
-    img.help-image {
-      max-width: 100%;
       margin-top: 10px;
+    }
+
+    .hilfe-image {
+      max-width: 65%;
+      margin-top: 10px;
+      margin-bottom: 10px;
       display: block;
+      margin-left: auto;
+      margin-right: auto;
       border-radius: 8px;
     }
 
-    .locked {
-      color: #f87171;
-      font-style: italic;
+    .file-preview {
+      display: flex;
+      align-items: center;
+      margin-top: 8px;
     }
-    .error {
-      color: #f87171;
+    .file-icon {
+      width: 28px;
+      height: 28px;
+      margin-right: 8px;
     }
-
-    a.btn-back {
-      display: inline-block;
-      margin-top: 20px;
+    .file-preview a {
       text-decoration: none;
-      background: #3b82f6;
-      color: #fff;
-      padding: 10px 18px;
-      border-radius: 8px;
+      color: #3b82f6;
       font-weight: 600;
-      transition: background 0.3s;
+      word-break: break-word;
     }
-    a.btn-back:hover {
-      background: #2563eb;
+    .file-preview a:hover {
+      text-decoration: underline;
     }
 
-    /* Theme-Schalter */
+    .locked-info {
+      color: #f87171;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
     .theme-toggle {
       position: fixed;
       top: 15px;
@@ -163,67 +145,83 @@
   </style>
 </head>
 <body class="light">
-  <!-- Theme Schalter -->
+  <!-- Darkmode Toggle -->
   <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
 
   <div class="container">
-    <!-- Logo + Branding -->
-    <img src="/logo.png" alt="Firmenlogo" class="logo">
-    <h1></h1>
-
-    <h2><%= hilfe.title %></h2>
+    <img src="/logo.png" alt="Logo" class="logo">
+    <h1><%= hilfe.title %></h1>
 
     <% hilfe.hilfen.forEach((h, idx) => { %>
-      <div class="accordion">
-        <div class="accordion-header">
-          <%= h.name %> <% if (h.locked && !unlocked[idx]) { %> 🔒 <% } %>
+      <div class="hilfe-item">
+        <div class="hilfe-header" onclick="toggleHilfe(<%= idx %>)">
+          <span><%= h.name %></span>
+          <span>▼</span>
         </div>
-        <div class="accordion-content">
-          <% if (h.locked && !unlocked[idx]) { %>
-            <p class="locked">Diese Hilfe ist gesperrt</p>
-            <form method="POST" action="/hilfe/<%= hilfe.id %>/unlock/<%= idx %>">
-              <input type="password" name="code" placeholder="Entsperrcode" required />
-              <button>Entsperren</button>
+
+        <% if (h.locked && !unlocked[idx]) { %>
+          <div class="hilfe-content" id="hilfe-<%= idx %>">
+            <div class="locked-info">🔒 Diese Hilfe ist gesperrt</div>
+            <form action="/hilfe/<%= hilfe.id %>/unlock/<%= idx %>" method="POST">
+              <input type="password" name="code" placeholder="Code eingeben">
+              <button type="submit">Entsperren</button>
+              <% if (errors && errors[idx]) { %>
+                <div class="locked-info"><%= errors[idx] %></div>
+              <% } %>
             </form>
-            <% if (errors && errors[idx]) { %>
-              <p class="error"><%= errors[idx] %></p>
-            <% } %>
-          <% } else { %>
+          </div>
+        <% } else { %>
+          <div class="hilfe-content" id="hilfe-<%= idx %>">
             <p><%= h.content %></p>
 
-            <% if (h.files && h.files.length > 0) { %>
-              <% h.files.forEach(file => { %>
-                <% if (file.isImage) { %>
-                  <img src="/<%= file.path %>" alt="<%= file.name %>" class="help-image">
-                <% } else { %>
-                  📎 <a href="/<%= file.path %>" target="_blank"><%= file.name %></a><br>
-                <% } %>
+            <% if (h.files && h.files.length > 0) { 
+                 // Wir prüfen sowohl path als auch original auf Bild-Endung
+                 const imageExtensions = /\.(png|jpe?g|gif|webp|bmp)$/;
+                 const imageFiles = h.files.filter(f => (f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions)));
+                 const otherFiles = h.files.filter(f => !((f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions))));
+            %>
+
+              <!-- ZUERST NUR Bilder -->
+              <% imageFiles.forEach(file => { %>
+                <img src="/<%= file.path %>" alt="<%= file.original %>" class="hilfe-image">
               <% }) %>
+
+              <!-- DANN Nicht-Bilder mit Icon -->
+              <% otherFiles.forEach(file => { 
+                   const lower = file.original.toLowerCase(); // Endung aus Original
+                   const filename = file.original;
+                   let icon = '/file-icon.png';
+                   if (lower.endsWith('.pdf')) icon = '/pdf-icon.png';
+                   else if (lower.endsWith('.doc') || lower.endsWith('.docx')) icon = '/word-icon.png';
+                   else if (lower.endsWith('.xls') || lower.endsWith('.xlsx')) icon = '/excel-icon.png';
+                   else if (lower.endsWith('.ppt') || lower.endsWith('.pptx')) icon = '/powerpoint-icon.png';
+                   else if (lower.endsWith('.zip')) icon = '/zip-icon.png';
+              %>
+                <div class="file-preview">
+                  <img src="<%= icon %>" alt="Datei" class="file-icon">
+                  <a href="/<%= file.path %>" target="_blank"><%= filename %></a>
+                </div>
+              <% }) %>
+
             <% } %>
-          <% } %>
-        </div>
+          </div>
+        <% } %>
       </div>
     <% }) %>
-
-    <div style="text-align:center;">
-      <a href="/" class="btn-back">⬅️ Zurück zur Startseite</a>
-    </div>
   </div>
 
   <script>
-    // Akkordeon
-    const headers = document.querySelectorAll('.accordion-header');
-    headers.forEach(header => {
-      header.addEventListener('click', () => {
-        const content = header.nextElementSibling;
-        document.querySelectorAll('.accordion-content').forEach(c => {
-          if (c !== content) c.style.display = 'none';
-        });
-        content.style.display = content.style.display === 'block' ? 'none' : 'block';
-      });
-    });
+    // Auf- und Zuklappen der Hilfen
+    function toggleHilfe(index) {
+      const content = document.getElementById('hilfe-' + index);
+      if (content.style.display === 'block') {
+        content.style.display = 'none';
+      } else {
+        content.style.display = 'block';
+      }
+    }
 
-    // Theme Toggle
+    // Dark/Light Mode Toggle
     const themeToggle = document.getElementById('themeToggle');
     const body = document.body;
 
