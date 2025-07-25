@@ -10,15 +10,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data.json');
 
-// ✅ Multer so konfigurieren, dass Dateien MIT Endung gespeichert werden
+// ✅ Multer speichert Dateien mit Endung
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, path.join(__dirname, 'public/uploads'));
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname); // Dateiendung (.png, .pdf, .docx)
+    const ext = path.extname(file.originalname); // .png, .jpg, .pdf ...
     const unique = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, unique + ext); // -> z.B. 1691234567890-123456789.png
+    cb(null, unique + ext);
   }
 });
 const upload = multer({ storage: storage });
@@ -50,6 +50,10 @@ app.get('/', (req, res) => {
 
 // --- Lernhilfe speichern ---
 app.post('/create', upload.any(), (req, res) => {
+
+  // ✅ DEBUG: Zeigt in Render-Logs an, was wirklich gespeichert wurde
+  console.log('📂 Hochgeladene Dateien auf Render:', req.files);
+
   const { title } = req.body;
   const hilfenInput = req.body.hilfen || {};
   const files = req.files || [];
@@ -59,16 +63,14 @@ app.post('/create', upload.any(), (req, res) => {
   Object.keys(hilfenInput).forEach(index => {
     const h = hilfenInput[index];
 
-    // locked ist "on" wenn Checkbox gesetzt
     const locked = h.locked === 'on' || h.locked === true || h.locked === 'true';
     const lockCode = locked ? h.lockCode?.trim() || null : null;
 
-    // Dateien filtern, die zu diesem Hilfenindex gehören + Originalname speichern
     const filesForHelp = files
       .filter(f => f.fieldname === `hilfen[${index}][file]`)
       .map(f => ({
-        path: `uploads/${f.filename}`,      // Speicherpfad inkl. Endung
-        original: f.originalname            // echter Name wie hochgeladen
+        path: `uploads/${f.filename}`,
+        original: f.originalname
       }));
 
     hilfenArray.push({
@@ -107,11 +109,9 @@ app.get('/hilfe/:id', (req, res) => {
     return res.status(404).send('Lernhilfe nicht gefunden');
   }
 
-  // Session speichern, welche Hilfen schon freigeschaltet sind
   if (!req.session.unlocked) req.session.unlocked = {};
   if (!req.session.unlocked[hilfe.id]) req.session.unlocked[hilfe.id] = {};
 
-  // Array von Booleans, ob Hilfen freigeschaltet sind
   const unlocked = hilfe.hilfen.map((_, idx) => !!req.session.unlocked[hilfe.id][idx]);
 
   res.render('hilfe', { hilfe, unlocked, errors: {} });
@@ -131,10 +131,9 @@ app.post('/hilfe/:id/unlock/:index', (req, res) => {
   const neededCode = hilfe.hilfen[idx].lockCode;
 
   if (!neededCode) {
-    return res.redirect(`/hilfe/${hilfe.id}`); // nicht gesperrt
+    return res.redirect(`/hilfe/${hilfe.id}`);
   }
 
-  // Session vorbereiten
   if (!req.session.unlocked) req.session.unlocked = {};
   if (!req.session.unlocked[hilfe.id]) req.session.unlocked[hilfe.id] = {};
 
