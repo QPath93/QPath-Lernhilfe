@@ -10,10 +10,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data.json');
 
-// ✅ Multer speichert Dateien mit Endung
+// ✅ Sicherstellen, dass der Upload-Ordner immer existiert
+const uploadDir = path.join(__dirname, 'public/uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('✅ Upload-Ordner wurde erstellt:', uploadDir);
+}
+
+// ✅ Multer speichert Dateien MIT Endung
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, 'public/uploads'));
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname); // .png, .jpg, .pdf ...
@@ -51,7 +58,7 @@ app.get('/', (req, res) => {
 // --- Lernhilfe speichern ---
 app.post('/create', upload.any(), (req, res) => {
 
-  // ✅ DEBUG: Zeigt in Render-Logs an, was wirklich gespeichert wurde
+  // ✅ DEBUG: Zeigt in Render-Logs an, was hochgeladen wurde
   console.log('📂 Hochgeladene Dateien auf Render:', req.files);
 
   const { title } = req.body;
@@ -150,5 +157,5 @@ app.post('/hilfe/:id/unlock/:index', (req, res) => {
 
 // --- Server starten ---
 app.listen(PORT, () => {
-  console.log(`Server läuft auf http://localhost:${PORT}`);
+  console.log(`✅ Server läuft auf http://localhost:${PORT}`);
 });
