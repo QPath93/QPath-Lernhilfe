@@ -5,32 +5,54 @@ const path = require('path');
 const QRCode = require('qrcode');
 const multer = require('multer');
 const session = require('express-session');
+const mongoose = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, 'data.json');
 
-// ✅ Sicherstellen, dass der Upload-Ordner immer existiert
+// ✅ Mit MongoDB Atlas verbinden
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log('✅ Mit MongoDB Atlas verbunden'))
+  .catch(err => console.error('❌ MongoDB Fehler:', err));
+
+// ✅ Schema für Lernhilfe
+const HilfeSchema = new mongoose.Schema({
+  title: String,
+  hilfen: [
+    {
+      name: String,
+      content: String,
+      locked: Boolean,
+      lockCode: String,
+      files: [{ path: String, original: String }]
+    }
+  ]
+});
+const Hilfe = mongoose.model('Hilfe', HilfeSchema);
+
+// ✅ Sicherstellen, dass Upload-Ordner existiert
 const uploadDir = path.join(__dirname, 'public/uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
   console.log('✅ Upload-Ordner wurde erstellt:', uploadDir);
 }
 
-// ✅ Multer speichert Dateien MIT Endung
+// ✅ Multer für Uploads (temporär)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname); // .png, .jpg, .pdf ...
+    const ext = path.extname(file.originalname);
     const unique = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, unique + ext);
   }
 });
 const upload = multer({ storage: storage });
 
-// Middleware
+// ✅ Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
@@ -40,36 +62,37 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// Initiale data.json Datei sicherstellen
-if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, JSON.stringify({}));
-
-function loadData() {
-  return JSON.parse(fs.readFileSync(DATA_FILE));
-}
-function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-
-// --- Startseite ---
-app.get('/', (req, res) => {
-  res.render('index'); // index.ejs
+// ✅ Keep-Alive Ping Route
+app.get('/ping', (req, res) => {
+  const randomId = Math.floor(Math.random() * 1000000);
+  res.send(`
+    <html>
+      <head><title>Keep Alive</title></head>
+      <body>
+        <h1>✅ App ist wach!</h1>
+        <p>Zeit: ${new Date().toISOString()}</p>
+        <p>Random: ${randomId}</p>
+      </body>
+    </html>
+  `);
 });
 
-// --- Lernhilfe speichern ---
-app.post('/create', upload.any(), (req, res) => {
+// ✅ Startseite
+app.get('/', (req, res) => {
+  res.render('index');
+});
 
-  // ✅ DEBUG: Zeigt in Render-Logs an, was hochgeladen wurde
-  console.log('📂 Hochgeladene Dateien auf Render:', req.files);
+// ✅ Lernhilfe erstellen und in MongoDB speichern
+app.post('/create', upload.any(), async (req, res) => {
+  console.log('📂 Hochgeladene Dateien:', req.files);
 
   const { title } = req.body;
   const hilfenInput = req.body.hilfen || {};
   const files = req.files || [];
-
   const hilfenArray = [];
 
   Object.keys(hilfenInput).forEach(index => {
     const h = hilfenInput[index];
-
     const locked = h.locked === 'on' || h.locked === true || h.locked === 'true';
     const lockCode = locked ? h.lockCode?.trim() || null : null;
 
@@ -93,10 +116,14 @@ app.post('/create', upload.any(), (req, res) => {
     return res.send('Bitte mindestens eine Hilfe ausfüllen.');
   }
 
-  const id = Date.now().toString();
-  const data = loadData();
-  data[id] = { id, title, hilfen: hilfenArray };
-  saveData(data);
+  // ✅ Speichern in MongoDB
+  const hilfeDoc = new Hilfe({
+    title,
+    hilfen: hilfenArray
+  });
+  await hilfeDoc.save();
+
+  const id = hilfeDoc._id; // MongoDB ID
 
   const url = `${req.protocol}://${req.get('host')}/hilfe/${id}`;
 
@@ -107,10 +134,9 @@ app.post('/create', upload.any(), (req, res) => {
   });
 });
 
-// --- Lernhilfe anzeigen ---
-app.get('/hilfe/:id', (req, res) => {
-  const data = loadData();
-  const hilfe = data[req.params.id];
+// ✅ Lernhilfe anzeigen (aus MongoDB holen)
+app.get('/hilfe/:id', async (req, res) => {
+  const hilfe = await Hilfe.findById(req.params.id);
 
   if (!hilfe) {
     return res.status(404).send('Lernhilfe nicht gefunden');
@@ -124,10 +150,9 @@ app.get('/hilfe/:id', (req, res) => {
   res.render('hilfe', { hilfe, unlocked, errors: {} });
 });
 
-// --- Entsperrcode prüfen ---
-app.post('/hilfe/:id/unlock/:index', (req, res) => {
-  const data = loadData();
-  const hilfe = data[req.params.id];
+// ✅ Entsperrcode prüfen
+app.post('/hilfe/:id/unlock/:index', async (req, res) => {
+  const hilfe = await Hilfe.findById(req.params.id);
   const idx = parseInt(req.params.index);
 
   if (!hilfe || !hilfe.hilfen[idx]) {
@@ -155,7 +180,7 @@ app.post('/hilfe/:id/unlock/:index', (req, res) => {
   }
 });
 
-// --- Server starten ---
+// ✅ Server starten
 app.listen(PORT, () => {
   console.log(`✅ Server läuft auf http://localhost:${PORT}`);
 });
