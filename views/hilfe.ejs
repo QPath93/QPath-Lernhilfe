@@ -151,6 +151,13 @@
     .arrow.rotated {
       transform: rotate(-90deg);
     }
+
+    .unlock-error {
+      color: #f87171;
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+    }
   </style>
 </head>
 <body class="light">
@@ -159,62 +166,103 @@
 
   <div class="container">
     <img src="/logo.png" alt="Logo" class="logo">
+<% if (user && user._id.toString() === hilfe.userId.toString()) { %>
+  <div style="text-align: center; margin-bottom: 20px;">
+    <a href="/dashboard" style="
+      display: inline-block;
+      padding: 10px 16px;
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      background: transparent;
+      color: #3b82f6;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    " onmouseover="this.style.background='#3b82f6'; this.style.color='white';"
+       onmouseout="this.style.background='transparent'; this.style.color='#3b82f6';">
+      ⬅️ Zurück zum Dashboard
+    </a>
+  </div>
+<% } %>
     <h1><%= hilfe.title %></h1>
 
     <% hilfe.hilfen.forEach((h, idx) => { %>
-      <div class="hilfe-item">
+      <div class="hilfe-item" id="hilfe-<%= idx %>">
         <div class="hilfe-header" onclick="toggleHilfe(<%= idx %>)">
-          <span><%= h.name %></span>
+          <span>
+            <%= h.name %>
+            <% if (h.locked && !unlocked[idx]) { %> 🔒 <% } %>
+          </span>
           <span class="arrow" id="arrow-<%= idx %>">◀</span>
         </div>
 
-        <% if (h.locked && !unlocked[idx]) { %>
-          <div class="hilfe-content" id="hilfe-<%= idx %>">
-            <div class="locked-info">🔒 Diese Hilfe ist gesperrt</div>
-            <form action="/hilfe/<%= hilfe.id %>/unlock/<%= idx %>" method="POST">
-              <input type="password" name="code" placeholder="Code eingeben">
-              <button type="submit">Entsperren</button>
-              <% if (errors && errors[idx]) { %>
-                <div class="locked-info"><%= errors[idx] %></div>
-              <% } %>
-            </form>
-          </div>
-        <% } else { %>
-          <div class="hilfe-content" id="hilfe-<%= idx %>">
-            <p><%= h.content %></p>
-
-            <% if (h.files && h.files.length > 0) { 
-                 // Wir prüfen sowohl path als auch original auf Bild-Endung
-                 const imageExtensions = /\.(png|jpe?g|gif|webp|bmp)$/;
-                 const imageFiles = h.files.filter(f => (f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions)));
-                 const otherFiles = h.files.filter(f => !((f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions))));
-            %>
-
-              <!-- ZUERST NUR Bilder -->
-              <% imageFiles.forEach(file => { %>
-                <img src="/<%= file.path %>" alt="<%= file.original %>" class="hilfe-image">
-              <% }) %>
-
-              <!-- DANN Nicht-Bilder mit Icon -->
-              <% otherFiles.forEach(file => { 
-                   const lower = file.original.toLowerCase(); // Endung aus Original
-                   const filename = file.original;
-                   let icon = '/file-icon.png';
-                   if (lower.endsWith('.pdf')) icon = '/pdf-icon.png';
-                   else if (lower.endsWith('.doc') || lower.endsWith('.docx')) icon = '/word-icon.png';
-                   else if (lower.endsWith('.xls') || lower.endsWith('.xlsx')) icon = '/excel-icon.png';
-                   else if (lower.endsWith('.ppt') || lower.endsWith('.pptx')) icon = '/powerpoint-icon.png';
-                   else if (lower.endsWith('.zip')) icon = '/zip-icon.png';
+        <div class="hilfe-content" id="content-<%= idx %>">
+          <% if (h.locked && !unlocked[idx]) { %>
+            <div class="locked-content">
+              <div class="locked-info">🔒 Diese Hilfe ist gesperrt</div>
+              <form class="unlock-form" action="/hilfe/<%= hilfe.id %>/unlock/<%= idx %>" method="POST">
+                <input type="password" name="code" placeholder="Code eingeben">
+                <button type="submit">Entsperren</button>
+                <div class="unlock-error"></div>
+              </form>
+            </div>
+            <div class="real-content" style="display:none;">
+              <p><%= h.content %></p>
+              <% if (h.files && h.files.length > 0) { 
+                   const imageExtensions = /\.(png|jpe?g|gif|webp|bmp)$/;
+                   const imageFiles = h.files.filter(f => (f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions)));
+                   const otherFiles = h.files.filter(f => !((f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions))));
               %>
-                <div class="file-preview">
-                  <img src="<%= icon %>" alt="Datei" class="file-icon">
-                  <a href="/<%= file.path %>" target="_blank"><%= filename %></a>
-                </div>
-              <% }) %>
-
-            <% } %>
-          </div>
-        <% } %>
+                <% imageFiles.forEach(file => { %>
+                  <img src="/<%= file.path %>" alt="<%= file.original %>" class="hilfe-image">
+                <% }) %>
+                <% otherFiles.forEach(file => { 
+                     const lower = file.original.toLowerCase();
+                     const filename = file.original;
+                     let icon = '/file-icon.png';
+                     if (lower.endsWith('.pdf')) icon = '/pdf-icon.png';
+                     else if (lower.endsWith('.doc') || lower.endsWith('.docx')) icon = '/word-icon.png';
+                     else if (lower.endsWith('.xls') || lower.endsWith('.xlsx')) icon = '/excel-icon.png';
+                     else if (lower.endsWith('.ppt') || lower.endsWith('.pptx')) icon = '/powerpoint-icon.png';
+                     else if (lower.endsWith('.zip')) icon = '/zip-icon.png';
+                %>
+                  <div class="file-preview">
+                    <img src="<%= icon %>" alt="Datei" class="file-icon">
+                    <a href="/<%= file.path %>" target="_blank"><%= filename %></a>
+                  </div>
+                <% }) %>
+              <% } %>
+            </div>
+          <% } else { %>
+            <div class="real-content">
+              <p><%= h.content %></p>
+              <% if (h.files && h.files.length > 0) { 
+                   const imageExtensions = /\.(png|jpe?g|gif|webp|bmp)$/;
+                   const imageFiles = h.files.filter(f => (f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions)));
+                   const otherFiles = h.files.filter(f => !((f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions))));
+              %>
+                <% imageFiles.forEach(file => { %>
+                  <img src="/<%= file.path %>" alt="<%= file.original %>" class="hilfe-image">
+                <% }) %>
+                <% otherFiles.forEach(file => { 
+                     const lower = file.original.toLowerCase();
+                     const filename = file.original;
+                     let icon = '/file-icon.png';
+                     if (lower.endsWith('.pdf')) icon = '/pdf-icon.png';
+                     else if (lower.endsWith('.doc') || lower.endsWith('.docx')) icon = '/word-icon.png';
+                     else if (lower.endsWith('.xls') || lower.endsWith('.xlsx')) icon = '/excel-icon.png';
+                     else if (lower.endsWith('.ppt') || lower.endsWith('.pptx')) icon = '/powerpoint-icon.png';
+                     else if (lower.endsWith('.zip')) icon = '/zip-icon.png';
+                %>
+                  <div class="file-preview">
+                    <img src="<%= icon %>" alt="Datei" class="file-icon">
+                    <a href="/<%= file.path %>" target="_blank"><%= filename %></a>
+                  </div>
+                <% }) %>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
       </div>
     <% }) %>
   </div>
@@ -222,17 +270,17 @@
   <script>
     // Auf- und Zuklappen der Hilfen
     function toggleHilfe(index) {
-  const content = document.getElementById('hilfe-' + index);
-  const arrow = document.getElementById('arrow-' + index);
+      const content = document.getElementById('content-' + index);
+      const arrow = document.getElementById('arrow-' + index);
 
-  if (content.style.display === 'block') {
-    content.style.display = 'none';
-    arrow.classList.remove('rotated');
-  } else {
-    content.style.display = 'block';
-    arrow.classList.add('rotated');
-  }
-}
+      if (content.style.display === 'block') {
+        content.style.display = 'none';
+        arrow.classList.remove('rotated');
+      } else {
+        content.style.display = 'block';
+        arrow.classList.add('rotated');
+      }
+    }
 
     // Dark/Light Mode Toggle
     const themeToggle = document.getElementById('themeToggle');
@@ -256,6 +304,52 @@
         themeToggle.textContent = '🌙 Dark Mode';
         localStorage.setItem('theme', 'light');
       }
+    });
+
+    // ✅ AJAX Unlock ohne Reload
+    document.querySelectorAll('.unlock-form').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const plain = new URLSearchParams(formData);
+
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: plain,
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          data.unlockedIndices.forEach(idx => {
+            const helpBox = document.querySelector(`#hilfe-${idx}`);
+            if (!helpBox) return;
+
+            const lockedContent = helpBox.querySelector('.locked-content');
+            const realContent = helpBox.querySelector('.real-content');
+
+            // 🔓 Schloss-Icon entfernen
+            const header = document.querySelector(`#arrow-${idx}`).parentElement;
+            header.innerHTML = header.innerHTML.replace('🔒','');
+
+            if (lockedContent) lockedContent.style.display = 'none';
+            if (realContent) realContent.style.display = 'block';
+          });
+        } else {
+          const errorEl = form.querySelector('.unlock-error');
+          if (errorEl) {
+            errorEl.textContent = data.error;
+            errorEl.style.display = 'block';
+          } else {
+            alert(data.error);
+          }
+        }
+      });
     });
   </script>
 </body>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Lernhilfe erstellt</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.light {
+      background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
+      color: #333;
+    }
+
+    body.light .container {
+      background: #fff;
+      color: #333;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    body.dark {
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: #e5e7eb;
+    }
+
+    body.dark .container {
+      background: #1f2937;
+      color: #f3f4f6;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    .container {
+      max-width: 600px;
+      width: 90%;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .logo {
+      max-width: 160px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .qr-code {
+      margin: 20px 0;
+    }
+
+    .qr-code img {
+      max-width: 200px;
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .btn {
+      display: inline-block;
+      margin: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.3s;
+      border: none;
+    }
+
+    .btn-link {
+      background: #3b82f6;
+      color: #fff;
+    }
+
+    .btn-link:hover {
+      background: #2563eb;
+    }
+
+    .btn-download {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .btn-download:hover {
+      background: #059669;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.1);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+      backdrop-filter: blur(4px);
+    }
+
+    body.light .theme-toggle {
+      background: rgba(0,0,0,0.1);
+      color: #111;
+    }
+
+    body.dark .theme-toggle {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body class="light">
+  <!-- Darkmode Toggle -->
+  <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+
+  <div class="container">
+    <img src="/logo.png" alt="Logo" class="logo">
+    <h1>Lernhilfe erstellt!</h1>
+
+    <p>
+      Hier ist der Link zur Lernhilfe:<br>
+      <a href="<%= url %>" class="btn btn-link">➡ Lernhilfe öffnen</a>
+    </p>
+
+    <div class="qr-code">
+      <img id="qrImage" src="<%= qrImage %>" alt="QR-Code">
+    </div>
+
+    <button class="btn btn-download" id="downloadBtn">📥 QR-Code herunterladen</button>
+
+    <div style="margin-top:20px;">
+      <a href="/dashboard" class="btn btn-link">⬅ Zurück zum Dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    // Darkmode
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.remove('light');
+      body.classList.add('dark');
+      themeToggle.textContent = '☀️ Light Mode';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      if (body.classList.contains('light')) {
+        body.classList.remove('light');
+        body.classList.add('dark');
+        themeToggle.textContent = '☀️ Light Mode';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.remove('dark');
+        body.classList.add('light');
+        themeToggle.textContent = '🌙 Dark Mode';
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+    // Download QR
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const qrImg = document.getElementById('qrImage');
+      const link = document.createElement('a');
+      link.href = qrImg.src;
+      link.download = 'qr-code.png';
+      link.click();
+    });
+  </script>
+</body>
+</html>

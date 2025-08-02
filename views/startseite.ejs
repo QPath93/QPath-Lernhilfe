@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Lernhilfe App – Start</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.light {
+      background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
+      color: #333;
+    }
+    body.dark {
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: #e5e7eb;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+  width: 350px;
+  position: relative;
+  top: 10px;
+  left: 60px;
+
+}
+    }
+
+    .nav-links a {
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: 600;
+      color: #3b82f6;
+    }
+
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: -90px;
+      gap: 40px;
+    }
+
+    .hero-text {
+      flex: 1 1 400px;
+    }
+
+    .hero-text h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    .hero-text p {
+      font-size: 1.2em;
+      line-height: 1.6;
+    }
+
+    .hero-preview {
+      flex: 1 1 400px;
+      background: #fff;
+      padding: 5px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .hero-preview video {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+    .hero-preview {
+     position: relative;
+     top: -100px;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.1);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+      backdrop-filter: blur(4px);
+    }
+
+    body.light .theme-toggle {
+      background: rgba(0,0,0,0.1);
+      color: #111;
+    }
+
+    body.dark .theme-toggle {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(0,0,0,0.2);
+    }
+
+    .qr-sample {
+      margin-top: -60px;
+      text-align: center;
+    }
+
+    .qr-sample img {
+      max-width: 160px;
+      border-radius: 10px;
+    }
+
+    .qr-sample a {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+.auth-buttons {
+  position: absolute;
+  top: 50px;
+  right: 350px;
+  display: flex;
+  gap: 40px;
+}
+
+.btn-outline {
+  padding: 10px 16px;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  background: transparent;
+  color: #3b82f6;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+    @media (max-width: 768px) {
+      .hero {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body class="light">
+  <!-- Darkmode Toggle -->
+  <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+
+  <div class="container">
+    <div class="header">
+      <img src="/logo.png" alt="Logo" class="logo">
+      <div class="nav-links">
+        <div class="auth-buttons">
+  <a href="/login" class="btn-outline"> Login</a>
+  <a href="/register" class="btn-outline"> Registrieren</a>
+</div>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-text">
+        <h1>Willkommen bei deiner Lernhilfe-App</h1>
+        <p>
+          Erstelle interaktive Lernhilfen mit Text, Bildern, Dateien und optionalen Zugangscodes.
+          Du kannst QR-Codes erzeugen, mit denen deine Lernhilfen überall abrufbar sind.
+          Registriere dich, um deine Hilfen zu speichern, zu bearbeiten und jederzeit zu verwalten!
+        </p>
+      </div>
+      <div class="hero-preview">
+       <video id="previewVideo" autoplay muted loop playsinline>
+  <source src="/vorschau-lernhilfe.mp4" type="video/mp4">
+  Dein Browser unterstützt das Video-Tag nicht.
+</video>
+      </div>
+    </div>
+
+    <div class="qr-sample">
+      <h3>📱 Beispiel-QR-Code</h3>
+      <img src="/beispiel-qr.png" alt="Beispiel QR-Code">
+      <div><a href="/hilfe/688aad6e6cb74f464466dc26" target="_blank">➡ Diese Beispielhilfe ansehen</a></div>
+    </div>
+  </div>
+
+<script>
+  const video = document.getElementById('previewVideo');
+  video.playbackRate = 2.0;
+</script>
+
+  <script>
+    const toggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.remove('light');
+      body.classList.add('dark');
+      toggle.textContent = '☀️ Light Mode';
+    }
+
+    toggle.addEventListener('click', () => {
+      if (body.classList.contains('light')) {
+        body.classList.remove('light');
+        body.classList.add('dark');
+        toggle.textContent = '☀️ Light Mode';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.remove('dark');
+        body.classList.add('light');
+        toggle.textContent = '🌙 Dark Mode';
+        localStorage.setItem('theme', 'light');
+      }
+
+     });
+  </script>
+</body>
+</html>

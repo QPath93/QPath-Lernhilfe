@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Meine Lernhilfe</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Light Mode */
+    body.light {
+      background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
+      color: #333;
+    }
+    body.light .container {
+      background: #fff;
+      color: #333;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    /* Dark Mode */
+    body.dark {
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: #e5e7eb;
+    }
+    body.dark .container {
+      background: #1f2937;
+      color: #f3f4f6;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    .container {
+      max-width: 800px;
+      width: 90%;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 12px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 15px;
+      max-width: 180px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    textarea,
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    .hilfe-box {
+      padding: 15px;
+      border: 1px solid #4b5563;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .add-btn,
+    .submit-btn {
+      display: inline-block;
+      margin: 10px 0;
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.3s;
+      border: none;
+    }
+
+    .add-btn {
+      background: #3b82f6;
+      color: #fff;
+    }
+    .add-btn:hover {
+      background: #2563eb;
+    }
+
+    .submit-btn {
+      background: #10b981;
+      color: #fff;
+    }
+    .submit-btn:hover {
+      background: #059669;
+    }
+
+    .remove-btn {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 8px;
+      cursor: pointer;
+      float: right;
+    }
+
+    .dropzone {
+      border: 2px dashed #3b82f6;
+      padding: 10px;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background 0.2s;
+    }
+    .dropzone.dragover {
+      background: rgba(59,130,246,0.1);
+    }
+
+    .file-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .file-list li {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    .file-list button {
+      background: none;
+      border: none;
+      color: red;
+      cursor: pointer;
+    }
+
+    .hint-icon {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      background: #3b82f6;
+      color: #fff;
+      border-radius: 50%;
+      text-align: center;
+      font-size: 12px;
+      line-height: 18px;
+      margin-left: 5px;
+      cursor: pointer;
+      position: relative;
+    }
+    .hint-icon:hover::after {
+      content: "Mit der Codesperre können Hilfen gesperrt werden. Erst nach Eingabe eines gültigen Codes können gesperrte Inhalte angezeigt werden. Für jede Hilfe kann ein individueller Code vergeben werden – gleichzeitig ist es möglich, mehrere Hilfen mit demselben Code zu sichern. Wird eine Hilfe entsperrt, werden automatisch alle Hilfen freigegeben, die denselben Code verwenden.";
+      position: absolute;
+      top: -5px;
+      left: 30px;
+      width: 250px;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      z-index: 100;
+    } 
+
+.hint-icon2 {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      background: #3b82f6;
+      color: #fff;
+      border-radius: 50%;
+      text-align: center;
+      font-size: 12px;
+      line-height: 18px;
+      margin-left: 10px;
+      cursor: pointer;
+      position: relative;
+    }
+    .hint-icon2:hover::after {
+      content: "Dateien können per Drag & Drop hinzugefügt werden.";
+      position: absolute;
+      top: -5px;
+      left: 30px;
+      width: 250px;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      z-index: 100;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.1);
+    }
+
+    body.dark .theme-toggle {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+  </style>
+</head>
+<body class="light">
+  <!-- Darkmode Toggle -->
+ <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+
+  <div class="container">
+    <img src="/logo.png" alt="Logo" class="logo">
+    <h1>Meine Lernhilfe</h1>
+
+    <form id="lernForm" action="/create" method="POST" enctype="multipart/form-data">
+      <label for="title">Titel der Lernhilfe</label>
+      <input type="text" name="title" id="title" required>
+
+      <div id="hilfen-container"></div>
+
+      <button type="button" class="add-btn" id="addHilfeBtn">+ Weitere Hilfe hinzufügen</button>
+      <button type="submit" class="submit-btn"> Lernhilfe erstellen</button>
+    </form>
+  </div>
+
+  <script>
+    const hilfenContainer = document.getElementById('hilfen-container');
+    const addHilfeBtn = document.getElementById('addHilfeBtn');
+    let hilfeCount = 0;
+
+    function createHilfeBox(index) {
+      const box = document.createElement('div');
+      box.className = 'hilfe-box';
+      box.innerHTML = `
+        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">❌ Entfernen</button>
+        <label>Name der Hilfe</label>
+        <input type="text" name="hilfen[${index}][name]" placeholder="Name der Hilfe">
+
+        <label>Inhalt</label>
+        <textarea name="hilfen[${index}][content]" rows="3" placeholder="Beschreibung oder Erklärung"></textarea>
+
+        <label>
+          <input type="checkbox" name="hilfen[${index}][locked]"> Mit Code sperren?
+          <span class="hint-icon">?</span>
+        </label>
+        <input type="password" name="hilfen[${index}][lockCode]" placeholder="Entsperrcode (optional)">
+
+        <label>Dateien<span class="hint-icon2">?</span></label>
+        <div class="dropzone" data-index="${index}">
+          <p>Dateien hier ablegen oder hier klicken um Dateien hochzuladen</p>
+          <input type="file" name="hilfen[${index}][file]" multiple hidden>
+        </div>
+        <ul class="file-list" data-index="${index}"></ul>
+      `;
+      return box;
+    }
+
+    addHilfeBtn.addEventListener('click', () => {
+      const newBox = createHilfeBox(hilfeCount++);
+      hilfenContainer.appendChild(newBox);
+      initDropzone(newBox.querySelector('.dropzone'));
+    });
+
+    // Initial eine Hilfe hinzufügen
+    addHilfeBtn.click();
+
+    // Drag & Drop Initialisierung
+    function initDropzone(dropzone) {
+      const index = dropzone.dataset.index;
+      const fileInput = dropzone.querySelector('input[type="file"]');
+      const fileListContainer = document.querySelector(`.file-list[data-index="${index}"]`);
+      let filesArray = [];
+
+      // Klick öffnet Dateiauswahl
+      dropzone.addEventListener('click', () => fileInput.click());
+
+      // Dateien via Dateiauswahl hinzufügen
+      fileInput.addEventListener('change', (e) => {
+        addFiles([...e.target.files]);
+      });
+
+      // Drag Over Style
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+      });
+
+      // Dateien per Drag & Drop
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        const droppedFiles = [...e.dataTransfer.files];
+        addFiles(droppedFiles);
+      });
+
+      function addFiles(newFiles) {
+        newFiles.forEach(file => {
+          if (!filesArray.find(f => f.name === file.name && f.size === file.size)) {
+            filesArray.push(file);
+          }
+        });
+        updateFileList();
+      }
+
+      function updateFileList() {
+        fileListContainer.innerHTML = '';
+        filesArray.forEach((file, idx) => {
+          const li = document.createElement('li');
+          li.textContent = file.name + ' ';
+          const removeBtn = document.createElement('button');
+          removeBtn.textContent = '❌';
+          removeBtn.addEventListener('click', () => {
+            filesArray.splice(idx, 1);
+            updateFileList();
+          });
+          li.appendChild(removeBtn);
+          fileListContainer.appendChild(li);
+        });
+
+        // Input-Files neu setzen
+        const dataTransfer = new DataTransfer();
+        filesArray.forEach(f => dataTransfer.items.add(f));
+        fileInput.files = dataTransfer.files;
+      }
+    }
+
+
+    const body = document.body;
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.remove('light');
+      body.classList.add('dark');
+      themeToggle.textContent = '☀️ Light Mode';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      if (body.classList.contains('light')) {
+        body.classList.remove('light');
+        body.classList.add('dark');
+        themeToggle.textContent = '☀️ Light Mode';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.remove('dark');
+        body.classList.add('light');
+        themeToggle.textContent = '🌙 Dark Mode';
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= hilfe.title %> – Bearbeiten</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+      color: #111;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    textarea,
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .hilfe-section {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      background: #f9fafb;
+    }
+
+    .file-preview {
+      margin-top: 10px;
+    }
+
+    .file-preview a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+
+    .file-preview a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      background-color: #3b82f6;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      text-decoration: none;
+      color: #3b82f6;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="back-link" href="/dashboard">← Zurück zum Dashboard</a>
+    <h1>Lernhilfe bearbeiten</h1>
+
+    <form action="/hilfe/<%= hilfe._id %>/bearbeiten" method="POST">
+      <label for="title">Titel der Lernhilfe:</label>
+      <input type="text" name="title" id="title" value="<%= hilfe.title %>" required />
+
+      <% hilfe.hilfen.forEach((h, idx) => { %>
+        <div class="hilfe-section">
+          <label for="name-<%= idx %>">Titel Hilfe <%= idx + 1 %>:</label>
+          <input type="text" name="hilfen[<%= idx %>][name]" id="name-<%= idx %>" value="<%= h.name %>" required />
+
+          <label for="content-<%= idx %>">Inhalt:</label>
+          <textarea name="hilfen[<%= idx %>][content]" id="content-<%= idx %>" rows="4"><%= h.content %></textarea>
+
+          <label>
+            <input type="checkbox" name="hilfen[<%= idx %>][locked]" <%= h.locked ? 'checked' : '' %> />
+            Gesperrt
+          </label>
+
+          <label for="lockCode-<%= idx %>">Code zum Entsperren:</label>
+          <input type="password" name="hilfen[<%= idx %>][lockCode]" id="lockCode-<%= idx %>" value="<%= h.lockCode || '' %>" />
+
+          <% if (h.files && h.files.length > 0) { %>
+            <div class="file-preview">
+              <strong>Dateien:</strong><br />
+              <% h.files.forEach(file => { %>
+                <a href="/<%= file.path %>" target="_blank"><%= file.original %></a><br />
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+      <% }) %>
+
+      <button type="submit">Speichern</button>
+    </form>
+  </div>
+</body>
+</html>

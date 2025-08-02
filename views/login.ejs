@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Login – Lernhilfe App</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.light {
+      background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
+      color: #333;
+    }
+
+    body.dark {
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: #e5e7eb;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 80px auto;
+      padding: 40px 30px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 2;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 40%;
+      left: 20%;
+      transform: translate(-50%, -50%);
+      background-image: url('/logo.png');
+      background-size: 250px;
+      background-repeat: no-repeat;
+      opacity: 0.48;
+      width: 200px;
+      height: 300px;
+      z-index: 0;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 3;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      border-color: #3b82f6;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #3b82f6;
+      border: none;
+      color: white;
+      font-weight: 600;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+    }
+
+    .message {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #f87171;
+      color: white;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.1);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+      backdrop-filter: blur(4px);
+      z-index: 10;
+    }
+
+    body.light .theme-toggle {
+      background: rgba(0,0,0,0.1);
+      color: #111;
+    }
+
+    body.dark .theme-toggle {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 3;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 40px 20px;
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body class="light">
+  <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+
+  <div class="container">
+    <h2>Login</h2>
+    <form action="/login" method="POST">
+      <div class="form-group">
+        <label for="username">Benutzername</label>
+        <input type="text" name="username" id="username" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Passwort</label>
+        <input type="password" name="password" id="password" required>
+      </div>
+
+      <button type="submit">Einloggen</button>
+
+      <% if (error) { %>
+        <div class="message"><%= error %></div>
+      <% } %>
+    </form>
+  </div>
+
+  <script>
+    const toggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.remove('light');
+      body.classList.add('dark');
+      toggle.textContent = '☀️ Light Mode';
+    }
+
+    toggle.addEventListener('click', () => {
+      if (body.classList.contains('light')) {
+        body.classList.remove('light');
+        body.classList.add('dark');
+        toggle.textContent = '☀️ Light Mode';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.remove('dark');
+        body.classList.add('light');
+        toggle.textContent = '🌙 Dark Mode';
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  </script>
+</body>
+</html>
