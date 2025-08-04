@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Login – Lernhilfe App</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
@@ -87,6 +87,8 @@
       font-size: 16px;
       cursor: pointer;
       transition: background 0.3s;
+      position: relative;
+      z-index: 3;
     }
 
     button:hover {
@@ -100,33 +102,34 @@
       color: white;
       border-radius: 8px;
       font-weight: 500;
+      position: relative;
+      z-index: 3;
     }
 
     .theme-toggle {
       position: fixed;
       top: 15px;
       right: 15px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: rgba(0,0,0,0.1);
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 50%;
       cursor: pointer;
+      font-size: 18px;
       transition: background 0.3s;
       backdrop-filter: blur(4px);
       z-index: 10;
     }
-
     body.light .theme-toggle {
-      background: rgba(0,0,0,0.1);
       color: #111;
     }
-
     body.dark .theme-toggle {
-      background: rgba(255,255,255,0.1);
       color: #fff;
+      background: rgba(255,255,255,0.1);
     }
-
     .theme-toggle:hover {
       background: rgba(0,0,0,0.2);
     }
@@ -147,7 +150,8 @@
   </style>
 </head>
 <body class="light">
-  <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+  <!-- Darkmode Toggle -->
+  <div class="theme-toggle" id="themeToggle">🌙</div>
 
   <div class="container">
     <h2>Login</h2>
@@ -171,28 +175,19 @@
   </div>
 
   <script>
+    // Dark/Light Toggle with Circular Icon
     const toggle = document.getElementById('themeToggle');
     const body = document.body;
-
-    if (localStorage.getItem('theme') === 'dark') {
-      body.classList.remove('light');
-      body.classList.add('dark');
-      toggle.textContent = '☀️ Light Mode';
+    function setTheme(theme) {
+      body.classList.replace(theme === 'dark' ? 'light' : 'dark', theme);
+      toggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('theme', theme);
     }
-
     toggle.addEventListener('click', () => {
-      if (body.classList.contains('light')) {
-        body.classList.remove('light');
-        body.classList.add('dark');
-        toggle.textContent = '☀️ Light Mode';
-        localStorage.setItem('theme', 'dark');
-      } else {
-        body.classList.remove('dark');
-        body.classList.add('light');
-        toggle.textContent = '🌙 Dark Mode';
-        localStorage.setItem('theme', 'light');
-      }
+      setTheme(body.classList.contains('light') ? 'dark' : 'light');
     });
+    // Initialize
+    setTheme(localStorage.getItem('theme') || 'light');
   </script>
 </body>
 </html>

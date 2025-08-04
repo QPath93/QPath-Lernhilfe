@@ -12,27 +12,13 @@
       padding: 0;
       transition: background 0.3s, color 0.3s;
     }
-
-    /* Light Mode */
     body.light {
       background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
       color: #333;
     }
-    body.light .container {
-      background: #fff;
-      color: #333;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    }
-
-    /* Dark Mode */
     body.dark {
       background: linear-gradient(135deg, #111827, #1f2937);
       color: #e5e7eb;
-    }
-    body.dark .container {
-      background: #1f2937;
-      color: #f3f4f6;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
 
     .container {
@@ -49,6 +35,24 @@
       max-width: 160px;
     }
 
+    /* Zurück-Button */
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      background: transparent;
+      color: #3b82f6;
+      text-decoration: none;
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.3s, color 0.3s;
+    }
+    .back-btn:hover {
+      background: #3b82f6;
+      color: #fff;
+    }
+
     h1 {
       text-align: center;
       margin-bottom: 20px;
@@ -60,7 +64,6 @@
       border-bottom: 1px solid #4b5563;
       padding-bottom: 10px;
     }
-
     .hilfe-header {
       font-size: 18px;
       font-weight: 600;
@@ -76,19 +79,11 @@
     .hilfe-header:hover {
       background: rgba(59,130,246,0.2);
     }
-
-    .hilfe-content {
-      display: none;
-      margin-top: 10px;
-    }
-
+    .hilfe-content { display: none; margin-top: 10px; }
     .hilfe-image {
       max-width: 65%;
-      margin-top: 10px;
-      margin-bottom: 10px;
+      margin: 10px auto;
       display: block;
-      margin-left: auto;
-      margin-right: auto;
       border-radius: 8px;
     }
 
@@ -97,20 +92,14 @@
       align-items: center;
       margin-top: 8px;
     }
-    .file-icon {
-      width: 28px;
-      height: 28px;
-      margin-right: 8px;
-    }
+    .file-icon { width: 28px; height: 28px; margin-right: 8px; }
     .file-preview a {
       text-decoration: none;
       color: #3b82f6;
       font-weight: 600;
       word-break: break-word;
     }
-    .file-preview a:hover {
-      text-decoration: underline;
-    }
+    .file-preview a:hover { text-decoration: underline; }
 
     .locked-info {
       color: #f87171;
@@ -118,72 +107,45 @@
       margin-top: 5px;
     }
 
+    /* Dark/Light Switch */
     .theme-toggle {
       position: fixed;
       top: 15px;
       right: 15px;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
       background: rgba(0,0,0,0.1);
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 50%;
       cursor: pointer;
+      font-size: 18px;
       transition: background 0.3s;
-      backdrop-filter: blur(4px);
     }
-    body.light .theme-toggle {
-      background: rgba(0,0,0,0.1);
-      color: #111;
-    }
-    body.dark .theme-toggle {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-    }
-    .theme-toggle:hover {
-      background: rgba(0,0,0,0.2);
-    }
+    body.light .theme-toggle { background: rgba(0,0,0,0.1); color: #111; }
+    body.dark  .theme-toggle { background: rgba(255,255,255,0.1); color: #fff; }
+    .theme-toggle:hover { background: rgba(0,0,0,0.2); }
 
-    .arrow {
-      display: inline-block;
-      transition: transform 0.3s ease;
-    }
-
-    .arrow.rotated {
-      transform: rotate(-90deg);
-    }
+    .arrow { display: inline-block; transition: transform 0.3s ease; }
+    .arrow.rotated { transform: rotate(-90deg); }
 
     .unlock-error {
-      color: #f87171;
-      font-size: 13px;
-      margin-top: 5px;
-      display: none;
+      color: #f87171; font-size: 13px; margin-top: 5px; display: none;
     }
   </style>
 </head>
 <body class="light">
-  <!-- Darkmode Toggle -->
-  <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+  <!-- Dark/Light Toggle -->
+  <div id="themeToggle" class="theme-toggle">🌙</div>
 
   <div class="container">
     <img src="/logo.png" alt="Logo" class="logo">
-<% if (user && user._id.toString() === hilfe.userId.toString()) { %>
-  <div style="text-align: center; margin-bottom: 20px;">
-    <a href="/dashboard" style="
-      display: inline-block;
-      padding: 10px 16px;
-      border: 2px solid #3b82f6;
-      border-radius: 8px;
-      background: transparent;
-      color: #3b82f6;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    " onmouseover="this.style.background='#3b82f6'; this.style.color='white';"
-       onmouseout="this.style.background='transparent'; this.style.color='#3b82f6';">
-      ⬅️ Zurück zum Dashboard
-    </a>
-  </div>
-<% } %>
+
+    <!-- Ist ein User eingeloggt? Dann Dashboard, sonst Startseite -->
+    <% if (user) { %>
+      <a href="/dashboard" class="back-btn">Zu meinen Lernhilfen</a>
+    <% } else { %>
+      <a href="/" class="back-btn">Zur Startseite</a>
+    <% } %>
+
     <h1><%= hilfe.title %></h1>
 
     <% hilfe.hilfen.forEach((h, idx) => { %>
@@ -208,27 +170,21 @@
             </div>
             <div class="real-content" style="display:none;">
               <p><%= h.content %></p>
-              <% if (h.files && h.files.length > 0) { 
-                   const imageExtensions = /\.(png|jpe?g|gif|webp|bmp)$/;
-                   const imageFiles = h.files.filter(f => (f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions)));
-                   const otherFiles = h.files.filter(f => !((f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions))));
+              <% if (h.files && h.files.length) {
+                   const imgExt = /\.(png|jpe?g|gif|webp|bmp)$/;
+                   const images = h.files.filter(f=>f.path.match(imgExt));
+                   const others = h.files.filter(f=>!f.path.match(imgExt));
               %>
-                <% imageFiles.forEach(file => { %>
-                  <img src="/<%= file.path %>" alt="<%= file.original %>" class="hilfe-image">
+                <% images.forEach(f=>{ %>
+                  <img src="/<%=f.path%>" alt="<%=f.original%>" class="hilfe-image">
                 <% }) %>
-                <% otherFiles.forEach(file => { 
-                     const lower = file.original.toLowerCase();
-                     const filename = file.original;
-                     let icon = '/file-icon.png';
-                     if (lower.endsWith('.pdf')) icon = '/pdf-icon.png';
-                     else if (lower.endsWith('.doc') || lower.endsWith('.docx')) icon = '/word-icon.png';
-                     else if (lower.endsWith('.xls') || lower.endsWith('.xlsx')) icon = '/excel-icon.png';
-                     else if (lower.endsWith('.ppt') || lower.endsWith('.pptx')) icon = '/powerpoint-icon.png';
-                     else if (lower.endsWith('.zip')) icon = '/zip-icon.png';
+                <% others.forEach(f=>{
+                     let icon='/file-icon.png';
+                     if (f.original.toLowerCase().endsWith('.pdf')) icon='/pdf-icon.png';
                 %>
                   <div class="file-preview">
-                    <img src="<%= icon %>" alt="Datei" class="file-icon">
-                    <a href="/<%= file.path %>" target="_blank"><%= filename %></a>
+                    <img src="<%=icon%>" class="file-icon">
+                    <a href="/<%=f.path%>" target="_blank"><%=f.original%></a>
                   </div>
                 <% }) %>
               <% } %>
@@ -236,27 +192,21 @@
           <% } else { %>
             <div class="real-content">
               <p><%= h.content %></p>
-              <% if (h.files && h.files.length > 0) { 
-                   const imageExtensions = /\.(png|jpe?g|gif|webp|bmp)$/;
-                   const imageFiles = h.files.filter(f => (f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions)));
-                   const otherFiles = h.files.filter(f => !((f.path && f.path.toLowerCase().match(imageExtensions)) || (f.original && f.original.toLowerCase().match(imageExtensions))));
+              <% if (h.files && h.files.length) {
+                   const imgExt = /\.(png|jpe?g|gif|webp|bmp)$/;
+                   const images = h.files.filter(f=>f.path.match(imgExt));
+                   const others = h.files.filter(f=>!f.path.match(imgExt));
               %>
-                <% imageFiles.forEach(file => { %>
-                  <img src="/<%= file.path %>" alt="<%= file.original %>" class="hilfe-image">
+                <% images.forEach(f=>{ %>
+                  <img src="/<%=f.path%>" alt="<%=f.original%>" class="hilfe-image">
                 <% }) %>
-                <% otherFiles.forEach(file => { 
-                     const lower = file.original.toLowerCase();
-                     const filename = file.original;
-                     let icon = '/file-icon.png';
-                     if (lower.endsWith('.pdf')) icon = '/pdf-icon.png';
-                     else if (lower.endsWith('.doc') || lower.endsWith('.docx')) icon = '/word-icon.png';
-                     else if (lower.endsWith('.xls') || lower.endsWith('.xlsx')) icon = '/excel-icon.png';
-                     else if (lower.endsWith('.ppt') || lower.endsWith('.pptx')) icon = '/powerpoint-icon.png';
-                     else if (lower.endsWith('.zip')) icon = '/zip-icon.png';
+                <% others.forEach(f=>{
+                     let icon='/file-icon.png';
+                     if (f.original.toLowerCase().endsWith('.pdf')) icon='/pdf-icon.png';
                 %>
                   <div class="file-preview">
-                    <img src="<%= icon %>" alt="Datei" class="file-icon">
-                    <a href="/<%= file.path %>" target="_blank"><%= filename %></a>
+                    <img src="<%=icon%>" class="file-icon">
+                    <a href="/<%=f.path%>" target="_blank"><%=f.original%></a>
                   </div>
                 <% }) %>
               <% } %>
@@ -268,86 +218,47 @@
   </div>
 
   <script>
-    // Auf- und Zuklappen der Hilfen
-    function toggleHilfe(index) {
-      const content = document.getElementById('content-' + index);
-      const arrow = document.getElementById('arrow-' + index);
-
-      if (content.style.display === 'block') {
-        content.style.display = 'none';
-        arrow.classList.remove('rotated');
+    // Toggle Hilfen
+    function toggleHilfe(i){
+      const c=document.getElementById('content-'+i),
+            a=document.getElementById('arrow-'+i);
+      if(c.style.display==='block'){
+        c.style.display='none'; a.classList.remove('rotated');
       } else {
-        content.style.display = 'block';
-        arrow.classList.add('rotated');
+        c.style.display='block'; a.classList.add('rotated');
       }
     }
 
-    // Dark/Light Mode Toggle
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-
-    if (localStorage.getItem('theme') === 'dark') {
-      body.classList.remove('light');
-      body.classList.add('dark');
-      themeToggle.textContent = '☀️ Light Mode';
+    // Dark/Light Switch
+    const tog=document.getElementById('themeToggle'), bd=document.body;
+    function setTheme(t){
+      bd.classList.replace(t==='dark'?'light':'dark', t);
+      tog.textContent = t==='dark'? '☀️' : '🌙';
+      localStorage.setItem('theme', t);
     }
+    tog.addEventListener('click', ()=> setTheme(bd.classList.contains('light')?'dark':'light'));
+    setTheme(localStorage.getItem('theme')||'light');
 
-    themeToggle.addEventListener('click', () => {
-      if (body.classList.contains('light')) {
-        body.classList.remove('light');
-        body.classList.add('dark');
-        themeToggle.textContent = '☀️ Light Mode';
-        localStorage.setItem('theme', 'dark');
-      } else {
-        body.classList.remove('dark');
-        body.classList.add('light');
-        themeToggle.textContent = '🌙 Dark Mode';
-        localStorage.setItem('theme', 'light');
-      }
-    });
-
-    // ✅ AJAX Unlock ohne Reload
-    document.querySelectorAll('.unlock-form').forEach(form => {
-      form.addEventListener('submit', async (e) => {
+    // AJAX Unlock
+    document.querySelectorAll('.unlock-form').forEach(f=>{
+      f.addEventListener('submit',async e=>{
         e.preventDefault();
-
-        const formData = new FormData(form);
-        const plain = new URLSearchParams(formData);
-
-        const response = await fetch(form.action, {
-          method: 'POST',
-          body: plain,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          data.unlockedIndices.forEach(idx => {
-            const helpBox = document.querySelector(`#hilfe-${idx}`);
-            if (!helpBox) return;
-
-            const lockedContent = helpBox.querySelector('.locked-content');
-            const realContent = helpBox.querySelector('.real-content');
-
-            // 🔓 Schloss-Icon entfernen
-            const header = document.querySelector(`#arrow-${idx}`).parentElement;
-            header.innerHTML = header.innerHTML.replace('🔒','');
-
-            if (lockedContent) lockedContent.style.display = 'none';
-            if (realContent) realContent.style.display = 'block';
+        const r=await fetch(f.action,{
+          method:'POST',
+          headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+          body:new URLSearchParams(new FormData(f))
+        }), j=await r.json();
+        if(j.success){
+          j.unlockedIndices.forEach(idx=>{
+            const box=document.getElementById('hilfe-'+idx);
+            box.querySelector('.locked-content').style.display='none';
+            box.querySelector('.real-content').style.display='block';
+            const hdr=document.getElementById('arrow-'+idx).parentElement;
+            hdr.innerHTML=hdr.innerHTML.replace('🔒','');
           });
         } else {
-          const errorEl = form.querySelector('.unlock-error');
-          if (errorEl) {
-            errorEl.textContent = data.error;
-            errorEl.style.display = 'block';
-          } else {
-            alert(data.error);
-          }
+          const err=f.querySelector('.unlock-error');
+          err.textContent=j.error; err.style.display='block';
         }
       });
     });

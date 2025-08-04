@@ -5,23 +5,22 @@
   <title>Dashboard – Lernhilfe App</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-
+    /* Grundstyles + Darkmode */
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
       transition: background 0.3s, color 0.3s;
     }
-
     body.light {
       background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
       color: #333;
     }
-
     body.dark {
       background: linear-gradient(135deg, #111827, #1f2937);
       color: #e5e7eb;
     }
 
+    /* Topbar */
     .topbar {
       display: flex;
       justify-content: space-between;
@@ -29,191 +28,320 @@
       padding: 15px 25px;
       backdrop-filter: blur(6px);
     }
-
-.btn-logout {
-   padding: 10px 16px;
-  border: 2px solid #3b82f6;
-  border-radius: 8px;
-  background: transparent;
-  color: #3b82f6;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.btn-logout:hover {
-  background-color: #3b82f6;
-  color: white;
-}
-
     .theme-toggle {
-      font-size: 14px;
+      font-size: 18px;
       cursor: pointer;
-      padding: 8px 14px;
-      border-radius: 8px;
+      padding: 8px;
+      border-radius: 50%;
       background: rgba(0,0,0,0.1);
+      transition: background 0.3s;
     }
-
-    body.dark .theme-toggle {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
+    body.dark .theme-toggle { background: rgba(255,255,255,0.1); }
+    .btn-logout {
+      padding: 10px 16px;
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      background: transparent;
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
     }
+    .btn-logout:hover { background: #3b82f6; color: #fff; }
 
+    /* Überschrift */
     .welcome {
       text-align: center;
       margin-top: 20px;
-      font-size: 40px;
+      font-size: 36px;
       font-weight: 600;
+      text-decoration: underline green solid;
     }
 
+    /* Aktionen / Filter */
     .actions {
       max-width: 900px;
-      margin: 30px auto 20px;
+      margin: 30px auto 0;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
       gap: 12px;
-      padding: 0 10px;
+      align-items: flex-end;
+      justify-content: space-between;
     }
-
-    .actions a,
-    .actions select {
-      padding: 10px 14px;
+    .filter-select {
+      padding: 12px 16px;
+      font-size: 16px;
+      font-family: 'Inter', sans-serif;
       border-radius: 8px;
+      border: 2px solid #000;
+      background: #fff;
+      color: #000;
       font-weight: 600;
-      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .actions a {
+      padding: 12px 16px;
+      font-size: 16px;
+      border-radius: 8px;
+      background: #10b981;
+      color: #fff;
+      font-weight: 600;
       text-decoration: none;
-      font-size: 15px;
-      background-color: #3b82f6;
-      color: white;
+      cursor: pointer;
+      white-space: nowrap;
     }
+    .actions a:hover { opacity: 0.9; }
 
-    .actions select {
-      background-color: #3b82f6;
-        
-    }
-
+    /* Grid & Reveal */
     .hilfe-list {
       max-width: 900px;
-      margin: 0 auto;
-      padding: 20px 10px;
-      display: flex;
-      flex-direction: column;
+      margin: 20px auto 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 20px;
     }
-
     .hilfe-entry {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
       background: rgba(255,255,255,0.1);
-      padding: 16px;
-      border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      flex-wrap: wrap;
+      padding: 20px;
+      border-radius: 12px;
+      height: 260px;
+    }
+    .hilfe-entry.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
 
+    /* Linke Seite */
     .hilfe-left {
-      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
-
     .hilfe-title {
-      font-weight: bold;
-      font-size: 18px;
-      margin-bottom: 6px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
     }
-
-    .hilfe-link {
+    .hilfe-subject {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+    .hilfe-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .hilfe-button {
+      padding: 8px 0;
+      font-size: 14px;
+      border: 2px solid #333;
+      border-radius: 20px;
+      background: transparent;
+      color: #333;
       text-decoration: none;
-      color: #3b82f6;
+      text-align: center;
+      width: 65%;
+      transition: all 0.3s;
+    }
+    .hilfe-button:hover {
+      background: #333;
+      color: #fff;
+      border-color: #333;
+    }
+    .hilfe-button.delete-btn {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+    .hilfe-button.delete-btn:hover {
+      background: #ef4444;
+      color: #fff;
+      border-color: #ef4444;
+    }
+    body.dark .hilfe-button {
+      border-color: #e5e7eb;
+      color: #e5e7eb;
+    }
+    body.dark .hilfe-button:hover {
+      background: #e5e7eb;
+      color: #111;
+      border-color: #e5e7eb;
+    }
+    body.dark .hilfe-button.delete-btn {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+    body.dark .hilfe-button.delete-btn:hover {
+      background: #ef4444;
+      color: #fff;
+      border-color: #ef4444;
     }
 
+    /* QR-Code */
+    .qr-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
     .qr-preview img {
-      width: 100px;
-      height: 100px;
-      border-radius: 0px;
+      width: 180px;
+      height: 180px;
       object-fit: cover;
+      border-radius: 8px;
+    }
+    .qr-download-btn {
+      margin-top: 12px;
+      width: 180px;
+      padding: 10px 0;
+      font-size: 16px;
+      background: #10b981;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .qr-download-btn:hover { background: #059669; }
+
+    /* Entsperrcode */
+    .unlock-info {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #f59e0b;
+    }
+    body.dark .unlock-info {
+      color: #fbbf24;
     }
 
     @media (max-width: 600px) {
       .hilfe-entry {
-        flex-direction: column;
-        align-items: flex-start;
+        grid-template-columns: 1fr;
+        height: auto;
       }
-
-      .qr-preview {
-        margin-top: 12px;
+      .hilfe-button, .qr-download-btn {
+        width: 100%;
       }
-
-      .actions {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
     }
   </style>
 </head>
 <body class="light">
   <div class="topbar">
-    <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
-    <a class="btn-logout" href="/logout">Logout</a>
+    <div id="themeToggle" class="theme-toggle">🌙</div>
+    <a href="/logout" class="btn-logout">Logout</a>
   </div>
 
-  <div class="welcome">
-    Willkommen, <%= user.username %>!
-  </div>
+  <div class="welcome">Willkommen, <%= user.username %>!</div>
 
   <div class="actions">
-    <div style="font-weight: 800;"> Meine Lernhilfen</div>
-    <select onchange="location.href='/dashboard?sort=' + this.value">
-      <option value="date_desc" <%= sort === 'date_desc' ? 'selected' : '' %>>Neueste zuerst</option>
-      <option value="date_asc" <%= sort === 'date_asc' ? 'selected' : '' %>>Älteste zuerst</option>
-      <option value="title_asc" <%= sort === 'title_asc' ? 'selected' : '' %>>A–Z</option>
-      <option value="title_desc" <%= sort === 'title_desc' ? 'selected' : '' %>>Z–A</option>
-    </select>
-    <a href="/lernhilfeerstellen">Neue Lernhilfe erstellen ➕</a>
+    <form id="filterForm" method="GET" action="/dashboard" style="display:flex; gap:12px;">
+      <select name="sort" class="filter-select" onchange="filterForm.submit()">
+        <option value="date_desc" <%= sort==='date_desc'?'selected':''%>>Neueste zuerst</option>
+        <option value="date_asc"  <%= sort==='date_asc'?'selected':''%>>Älteste zuerst</option>
+        <option value="title_asc"<%= sort==='title_asc'?'selected':''%>>A–Z</option>
+        <option value="title_desc"<%= sort==='title_desc'?'selected':''%>>Z–A</option>
+      </select>
+      <select name="subject" class="filter-select" onchange="filterForm.submit()">
+        <option value="">Alle Fächer</option>
+        <% allSubjects.forEach(s=>{ %>
+          <option value="<%=s%>" <%= subject===s?'selected':''%>><%=s%></option>
+        <% }) %>
+      </select>
+    </form>
+    <a href="/lernhilfeerstellen">➕ Neue Lernhilfe</a>
   </div>
 
   <div class="hilfe-list">
-    <% hilfen.forEach(hilfe => { %>
+    <% hilfen.forEach(hilfe=>{ %>
       <div class="hilfe-entry">
         <div class="hilfe-left">
-          <div class="hilfe-title"><%= hilfe.title %></div>
-          <a class="hilfe-link" href="/hilfe/<%= hilfe._id %>">➡ Lernhilfe öffnen</a>
- <a class="hilfe-link" href="/hilfe/<%= hilfe._id %>/bearbeiten">✏️ Bearbeiten</a>
+          <div>
+            <div class="hilfe-title"><%=hilfe.title%></div>
+            <% if(hilfe.subject){ %>
+              <div class="hilfe-subject">Fach: <%=hilfe.subject%></div>
+            <% } %>
+          </div>
+          <div class="hilfe-footer">
+            <a href="/hilfe/<%=hilfe._id%>" class="hilfe-button">➡ Öffnen</a>
+            <a href="/hilfe/<%=hilfe._id%>/bearbeiten" class="hilfe-button">✏️ Bearbeiten</a>
+            <form action="/hilfe/<%=hilfe._id%>/loeschen" method="POST"
+                  onsubmit="return confirm('Bist du sicher, dass du diese Lernhilfe löschen möchtest?');">
+              <button type="submit" class="hilfe-button delete-btn">🗑️ Löschen</button>
+            </form>
+          </div>
+          <% 
+            const codes = hilfe.hilfen
+              .filter(h=>h.locked && h.lockCode)
+              .map(h=>h.lockCode);
+          %>
+          <% if(codes.length>0){ %>
+            <div class="unlock-info">
+              Entsperrcode<%= codes.length>1 ? 's' : '' %>: <%= codes.join(', ') %>
+            </div>
+          <% } %>
         </div>
         <div class="qr-preview">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=<%= req.protocol + '://' + req.get('host') + '/hilfe/' + hilfe._id %>" alt="QR-Code" />
+          <img id="qr-img-<%=hilfe._id%>" alt="QR-Code">
+          <button class="qr-download-btn" onclick="downloadQR('<%=hilfe._id%>')">📥 QR-Code</button>
         </div>
       </div>
     <% }) %>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
-    const toggle = document.getElementById('themeToggle');
-    const body = document.body;
+    // Dark/Light Mode + Icon
+    const toggle = document.getElementById('themeToggle'),
+          body   = document.body;
+    function setTheme(t){
+      if(t==='dark'){
+        body.classList.replace('light','dark');
+        toggle.textContent = '☀️';
+      } else {
+        body.classList.replace('dark','light');
+        toggle.textContent = '🌙';
+      }
+      localStorage.setItem('theme', t);
+    }
+    toggle.addEventListener('click', ()=> setTheme(body.classList.contains('light')?'dark':'light'));
+    setTheme(localStorage.getItem('theme')||'light');
 
-    if (localStorage.getItem('theme') === 'dark') {
-      body.classList.remove('light');
-      body.classList.add('dark');
-      toggle.textContent = '☀️ Light Mode';
+    // QR-Code generieren & setzen
+    <% hilfen.forEach(hilfe=>{ 
+      const url = `${req.protocol}://${req.get('host')}/hilfe/${hilfe._id}`;
+    %>
+      QRCode.toDataURL('<%=url%>').then(dataUrl=>{
+        const img = document.getElementById('qr-img-<%=hilfe._id%>');
+        img.src = dataUrl;
+        img.dataset.url = dataUrl;
+      });
+    <% }) %>
+    function downloadQR(id){
+      const img  = document.getElementById('qr-img-'+id);
+      const link = document.createElement('a');
+      link.href  = img.dataset.url;
+      link.download = 'qr-code.png';
+      link.click();
     }
 
-    toggle.addEventListener('click', () => {
-      if (body.classList.contains('light')) {
-        body.classList.remove('light');
-        body.classList.add('dark');
-        toggle.textContent = '☀️ Light Mode';
-        localStorage.setItem('theme', 'dark');
-      } else {
-        body.classList.remove('dark');
-        body.classList.add('light');
-        toggle.textContent = '🌙 Dark Mode';
-        localStorage.setItem('theme', 'light');
-      }
+    // Reveal-on-scroll
+    document.addEventListener('DOMContentLoaded',()=>{
+      document.querySelectorAll('.hilfe-entry').forEach(el=>{
+        const obs = new IntersectionObserver((entries,o)=>{
+          if(entries[0].isIntersecting){
+            el.classList.add('visible');
+            o.disconnect();
+          }
+        },{threshold:0.15});
+        obs.observe(el);
+      });
     });
   </script>
 </body>

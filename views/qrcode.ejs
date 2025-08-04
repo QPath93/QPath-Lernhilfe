@@ -104,34 +104,27 @@
       position: fixed;
       top: 15px;
       right: 15px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: rgba(0,0,0,0.1);
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 50%;
+      font-size: 18px;
       cursor: pointer;
       transition: background 0.3s;
       backdrop-filter: blur(4px);
+      z-index: 10;
     }
-
-    body.light .theme-toggle {
-      background: rgba(0,0,0,0.1);
-      color: #111;
-    }
-
-    body.dark .theme-toggle {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-    }
-
-    .theme-toggle:hover {
-      background: rgba(0,0,0,0.2);
-    }
+    body.light .theme-toggle { color: #111; }
+    body.dark  .theme-toggle { color: #fff; background: rgba(255,255,255,0.1); }
+    .theme-toggle:hover { background: rgba(0,0,0,0.2); }
   </style>
 </head>
 <body class="light">
-  <!-- Darkmode Toggle -->
-  <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+  <!-- Darkmode Toggle nur Icon -->
+  <div class="theme-toggle" id="themeToggle">🌙</div>
 
   <div class="container">
     <img src="/logo.png" alt="Logo" class="logo">
@@ -139,44 +132,36 @@
 
     <p>
       Hier ist der Link zur Lernhilfe:<br>
-      <a href="<%= url %>" class="btn btn-link">➡ Lernhilfe öffnen</a>
+      <a href="<%= url %>" class="btn btn-link">Lernhilfe öffnen</a>
     </p>
 
     <div class="qr-code">
       <img id="qrImage" src="<%= qrImage %>" alt="QR-Code">
     </div>
 
-    <button class="btn btn-download" id="downloadBtn">📥 QR-Code herunterladen</button>
+    <button class="btn btn-download" id="downloadBtn" type="button">📥 QR-Code herunterladen</button>
 
     <div style="margin-top:20px;">
-      <a href="/dashboard" class="btn btn-link">⬅ Zurück zum Dashboard</a>
+      <a href="/dashboard" class="btn btn-link">Zurück zu meinen Lernhilfen</a>
     </div>
   </div>
 
   <script>
-    // Darkmode
     const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
+    const bodyElem = document.body;
 
-    if (localStorage.getItem('theme') === 'dark') {
-      body.classList.remove('light');
-      body.classList.add('dark');
-      themeToggle.textContent = '☀️ Light Mode';
+    function applyTheme(theme) {
+      bodyElem.classList.replace(theme==='dark'?'light':'dark', theme);
+      themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('theme', theme);
     }
 
     themeToggle.addEventListener('click', () => {
-      if (body.classList.contains('light')) {
-        body.classList.remove('light');
-        body.classList.add('dark');
-        themeToggle.textContent = '☀️ Light Mode';
-        localStorage.setItem('theme', 'dark');
-      } else {
-        body.classList.remove('dark');
-        body.classList.add('light');
-        themeToggle.textContent = '🌙 Dark Mode';
-        localStorage.setItem('theme', 'light');
-      }
+      applyTheme(bodyElem.classList.contains('light') ? 'dark' : 'light');
     });
+
+    // initial
+    applyTheme(localStorage.getItem('theme') || 'light');
 
     // Download QR
     document.getElementById('downloadBtn').addEventListener('click', () => {

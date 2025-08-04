@@ -6,13 +6,15 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
+    /* ====================
+       Grundstyles + Darkmode
+       ==================== */
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
       transition: background 0.3s, color 0.3s;
     }
-
     body.light {
       background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
       color: #333;
@@ -27,51 +29,70 @@
       margin: 0 auto;
       padding: 40px 20px;
     }
-
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
     .logo {
-  width: 350px;
-  position: relative;
-  top: 10px;
-  left: 60px;
-
-}
+      width: 500px;
+      margin-top: 20px;
     }
 
-    .nav-links a {
-      margin-left: 20px;
+    .auth-buttons {
+      margin-left: auto;
+      padding-right: 100px;
+    }
+    .auth-buttons a {
+      margin-left: 50px;
+      padding: 15px 40px;
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      color: #3b82f6;
+      font-size: 25px;
       text-decoration: none;
       font-weight: 600;
-      color: #3b82f6;
+      transition: background 0.3s, color 0.3s;
+    }
+    .auth-buttons a:hover {
+      background: #3b82f6;
+      color: #fff;
     }
 
+    /* ====================
+       Reveal-on-scroll
+       ==================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ====================
+       Hero Section
+       ==================== */
     .hero {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      margin-top: -90px;
       gap: 40px;
+      margin-top: -120px;
     }
-
     .hero-text {
       flex: 1 1 400px;
     }
-
     .hero-text h1 {
       font-size: 2.5em;
       margin-bottom: 20px;
     }
-
     .hero-text p {
       font-size: 1.2em;
       line-height: 1.6;
     }
-
     .hero-preview {
       flex: 1 1 400px;
       background: #fff;
@@ -79,161 +100,202 @@
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     }
-
     .hero-preview video {
       max-width: 100%;
       border-radius: 8px;
     }
-    .hero-preview {
-     position: relative;
-     top: -100px;
-    }
 
-    .theme-toggle {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      background: rgba(0,0,0,0.1);
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.3s;
-      backdrop-filter: blur(4px);
-    }
-
-    body.light .theme-toggle {
-      background: rgba(0,0,0,0.1);
-      color: #111;
-    }
-
-    body.dark .theme-toggle {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-    }
-
-    .theme-toggle:hover {
-      background: rgba(0,0,0,0.2);
-    }
-
+    /* ====================
+       QR Sample
+       ==================== */
     .qr-sample {
-      margin-top: -60px;
       text-align: center;
+      margin: 80px 0;
     }
-
     .qr-sample img {
       max-width: 160px;
       border-radius: 10px;
     }
-
     .qr-sample a {
-      color: #3b82f6;
-      text-decoration: none;
-      font-weight: 600;
       display: inline-block;
       margin-top: 10px;
+      font-weight: 600;
+      color: #3b82f6;
+      text-decoration: none;
     }
 
-.auth-buttons {
-  position: absolute;
-  top: 50px;
-  right: 350px;
-  display: flex;
-  gap: 40px;
-}
+    /* ====================
+       Features Grid
+       ==================== */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-bottom: 100px;
+    }
+    .feature {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .feature img {
+      margin-bottom: 12px;
+    }
+    .feature h3 {
+      margin-top: 0;
+      font-size: 1.2em;
+      color: #111827;
+    }
+    .feature p {
+      font-size: 0.95em;
+      line-height: 1.4;
+      color: #4b5563;
+    }
 
-.btn-outline {
-  padding: 10px 16px;
-  border: 2px solid #3b82f6;
-  border-radius: 8px;
-  background: transparent;
-  color: #3b82f6;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.btn-outline:hover {
-  background: #3b82f6;
-  color: white;
-}
+    /* ====================
+       Theme Toggle
+       ==================== */
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.1);
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      transition: background 0.3s;
+      backdrop-filter: blur(4px);
+    }
+    body.light .theme-toggle {
+      color: #111;
+    }
+    body.dark .theme-toggle {
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+    }
+    .theme-toggle:hover {
+      background: rgba(0,0,0,0.2);
+    }
 
     @media (max-width: 768px) {
-      .hero {
-        flex-direction: column;
-      }
+      .hero { flex-direction: column; }
+      .features { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body class="light">
   <!-- Darkmode Toggle -->
-  <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+  <div class="theme-toggle" id="themeToggle">🌙</div>
 
   <div class="container">
-    <div class="header">
+    <!-- Header -->
+    <div class="header reveal">
       <img src="/logo.png" alt="Logo" class="logo">
-      <div class="nav-links">
-        <div class="auth-buttons">
-  <a href="/login" class="btn-outline"> Login</a>
-  <a href="/register" class="btn-outline"> Registrieren</a>
-</div>
+      <div class="auth-buttons">
+        <a href="/login">Login</a>
+        <a href="/register">Registrieren</a>
       </div>
     </div>
 
+    <!-- Hero -->
     <div class="hero">
-      <div class="hero-text">
+      <div class="hero-text reveal" style="transition-delay:0.2s;">
         <h1>Willkommen bei deiner Lernhilfe-App</h1>
         <p>
-          Erstelle interaktive Lernhilfen mit Text, Bildern, Dateien und optionalen Zugangscodes.
-          Du kannst QR-Codes erzeugen, mit denen deine Lernhilfen überall abrufbar sind.
-          Registriere dich, um deine Hilfen zu speichern, zu bearbeiten und jederzeit zu verwalten!
+          Erstelle interaktive Lernhilfen mit Text, Bildern, Dateien und Zugangscodes.
+          Deine Inhalte sind per QR-Code überall abrufbar – ganz ohne manuelle Links!
         </p>
       </div>
-      <div class="hero-preview">
-       <video id="previewVideo" autoplay muted loop playsinline>
-  <source src="/vorschau-lernhilfe.mp4" type="video/mp4">
-  Dein Browser unterstützt das Video-Tag nicht.
-</video>
+      <div class="hero-preview reveal" style="transition-delay:0.4s;">
+        <video id="previewVideo" autoplay muted loop playsinline>
+          <source src="/vorschau-lernhilfe.mp4" type="video/mp4">
+          Dein Browser unterstützt das Video-Tag nicht.
+        </video>
       </div>
     </div>
 
-    <div class="qr-sample">
+    <!-- QR Sample -->
+    <div class="qr-sample reveal" style="transition-delay:0.6s;">
       <h3>📱 Beispiel-QR-Code</h3>
       <img src="/beispiel-qr.png" alt="Beispiel QR-Code">
-      <div><a href="/hilfe/688aad6e6cb74f464466dc26" target="_blank">➡ Diese Beispielhilfe ansehen</a></div>
+      <div>
+        <a href="/hilfe/688aad6e6cb74f464466dc26" target="_blank">➡ Diese Beispielhilfe ansehen</a>
+      </div>
+    </div>
+
+    <!-- Vier Feature-Boxen -->
+    <div class="features">
+      <div class="feature reveal" style="transition-delay:0.8s;">
+        <img src="/icons/text.gif" alt="text.icon" width="60">
+        <h3>Flexibler Inhalt</h3>
+        <p>Gestalte deine Lernhilfen individuell nach den Bedürfnissen deiner Lerngruppe.</p>
+      </div>
+      <div class="feature reveal" style="transition-delay:1s;">
+        <img src="/icons/datei.gif" alt="bild-icon" width="60">
+        <h3>Bilder & Dateien</h3>
+        <p>Drag-n-Drop oder Datei-Upload: Alle Dateienformate werden unterstützt.</p>
+      </div>
+      <div class="feature reveal" style="transition-delay:1.2s;">
+        <img src="/icons/schloss.gif" alt="schloss-icon" width="60">
+        <h3>Code-Geschützt</h3>
+        <p>Sichere Inhalte mit einem Entsperrcode deiner Wahl, um die Lernenden zu fordern.</p>
+      </div>
+      <div class="feature reveal" style="transition-delay:1.4s;">
+        <img src="/icons/qricon.gif" alt="qr-icon" width="60">
+        <h3>QR-Code Sharing</h3>
+        <p>Teile deine Hilfen per "Scan-&-Go!" – mobil oder ausgedruckt auf deinem Arbeitsblatt. </p>
+      </div>
+      <div class="feature reveal" style="transition-delay:1.2s;">
+        <img src="/icons/kalender.gif" alt="schloss-icon" width="60">
+        <h3>Code-Geschützt</h3>
+        <p>Deine QR-Codes funktionieren ein Leben lang.</p>
+      </div>
+      <div class="feature reveal" style="transition-delay:1.2s;">
+        <img src="/icons/bearbeiten.gif" alt="schloss-icon" width="60">
+        <h3>Code-Geschützt</h3>
+        <p>Bearbeite deine Lernhilfen ohne den QR-Code verändern zu müssen. Praktisch, wenn mal etwas nicht so gut funktioniert!</p>
+      </div>
     </div>
   </div>
 
-<script>
-  const video = document.getElementById('previewVideo');
-  video.playbackRate = 2.0;
-</script>
-
   <script>
+    // Video-Speed
+    const video = document.getElementById('previewVideo');
+    if (video) video.playbackRate = 2.0;
+
+    // Dark/Light Toggle
     const toggle = document.getElementById('themeToggle');
     const body = document.body;
-
-    if (localStorage.getItem('theme') === 'dark') {
-      body.classList.remove('light');
-      body.classList.add('dark');
-      toggle.textContent = '☀️ Light Mode';
+    function setTheme(theme) {
+      body.classList.replace(theme === 'dark' ? 'light' : 'dark', theme);
+      toggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('theme', theme);
     }
-
     toggle.addEventListener('click', () => {
-      if (body.classList.contains('light')) {
-        body.classList.remove('light');
-        body.classList.add('dark');
-        toggle.textContent = '☀️ Light Mode';
-        localStorage.setItem('theme', 'dark');
-      } else {
-        body.classList.remove('dark');
-        body.classList.add('light');
-        toggle.textContent = '🌙 Dark Mode';
-        localStorage.setItem('theme', 'light');
-      }
+      setTheme(body.classList.contains('light') ? 'dark' : 'light');
+    });
+    setTheme(localStorage.getItem('theme') || 'light');
 
-     });
+    // Reveal-on-scroll
+    document.addEventListener('DOMContentLoaded', () => {
+      const revealElems = document.querySelectorAll('.reveal');
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      revealElems.forEach(el => observer.observe(el));
+    });
   </script>
 </body>
 </html>

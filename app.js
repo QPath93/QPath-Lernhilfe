@@ -1,12 +1,13 @@
 // 📦 Abhängigkeiten
-const express = require('express');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const bcrypt = require('bcrypt');
-const bodyParser = require('body-parser');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const QRCode      = require('qrcode');
+const express     = require('express');
+const mongoose    = require('mongoose');
+const session     = require('express-session');
+const bcrypt      = require('bcrypt');
+const bodyParser  = require('body-parser');
+const multer      = require('multer');
+const path        = require('path');
+const fs          = require('fs');
 require('dotenv').config();
 
 // 📡 Express App Setup
@@ -17,7 +18,8 @@ const PORT = process.env.PORT || 3000;
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-}).then(() => console.log('✅ Verbunden mit MongoDB'))
+})
+  .then(() => console.log('✅ Verbunden mit MongoDB'))
   .catch(err => console.error('❌ MongoDB Fehler:', err));
 
 // 📁 Mongoose Models
@@ -32,6 +34,7 @@ const User = mongoose.model('User', userSchema);
 
 const hilfeSchema = new mongoose.Schema({
   title: String,
+  subject: String,
   hilfen: [
     {
       name: String,
@@ -78,16 +81,20 @@ function ensureAuth(req, res, next) {
   res.redirect('/login');
 }
 
+// ─── Routen ────────────────────────────────────────────────────────────
+
 // 🌐 Startseite
-app.get('/', (req, res) => res.render('startseite'));
+app.get('/', (req, res) => {
+  res.render('startseite', { user: req.session.user || null });
+});
 
 // 🔐 Registrierung & Login
 app.get('/register', (req, res) => res.render('register', { error: null }));
 app.post('/register', async (req, res) => {
   const { username, password, role, schoolType } = req.body;
-  const existing = await User.findOne({ username });
-  if (existing) return res.render('register', { error: 'Benutzername bereits vergeben.' });
-
+  if (await User.findOne({ username })) {
+    return res.render('register', { error: 'Benutzername bereits vergeben.' });
+  }
   const hashed = await bcrypt.hash(password, 10);
   await new User({ username, password: hashed, role, schoolType }).save();
   res.redirect('/login');
@@ -100,9 +107,8 @@ app.post('/login', async (req, res) => {
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.render('login', { error: 'Ungültige Anmeldedaten.' });
   }
-
   req.session.userId = user._id;
-  req.session.user = user;
+  req.session.user   = user;
   res.redirect('/dashboard');
 });
 
@@ -112,21 +118,27 @@ app.get('/logout', (req, res) => {
 
 // 📊 Dashboard
 app.get('/dashboard', ensureAuth, async (req, res) => {
-  const { sort } = req.query;
+  const { sort, subject } = req.query;
+  const filter = { userId: req.session.userId };
+  if (subject) filter.subject = subject;
+
   let sortOption = {};
+  if      (sort === 'date_asc')   sortOption = { createdAt:  1 };
+  else if (sort === 'date_desc')  sortOption = { createdAt: -1 };
+  else if (sort === 'title_asc')  sortOption = { title:      1 };
+  else if (sort === 'title_desc') sortOption = { title:     -1 };
 
-  if (sort === 'date_asc') sortOption = { createdAt: 1 };
-  else if (sort === 'date_desc') sortOption = { createdAt: -1 };
-  else if (sort === 'title_asc') sortOption = { title: 1 };
-  else if (sort === 'title_desc') sortOption = { title: -1 };
-
-  const hilfen = await Hilfe.find({ userId: req.session.userId }).sort(sortOption);
+  const allUserHilfen = await Hilfe.find({ userId: req.session.userId });
+  const allSubjects   = [...new Set(allUserHilfen.map(h => h.subject).filter(Boolean))];
+  const hilfen        = await Hilfe.find(filter).sort(sortOption);
 
   res.render('dashboard', {
-    user: req.session.user,
+    user:        req.session.user,
     hilfen,
     sort,
-    req // Für QR-Code
+    subject,
+    allSubjects,
+    req
   });
 });
 
@@ -134,125 +146,138 @@ app.get('/dashboard', ensureAuth, async (req, res) => {
 app.get('/lernhilfeerstellen', ensureAuth, (req, res) => {
   res.render('lernhilfeerstellen');
 });
-
 app.post('/create', ensureAuth, upload.any(), async (req, res) => {
   const { title } = req.body;
-  const hilfenInput = req.body.hilfen || {};
-  const files = req.files || [];
+  const subject = req.body.subject === 'Sonstiges'
+    ? req.body.customSubject?.trim()
+    : req.body.subject;
+
   const hilfenArray = [];
-
-  Object.keys(hilfenInput).forEach(index => {
-    const h = hilfenInput[index];
+  const files       = req.files || [];
+  const hilfenInput = req.body.hilfen || {};
+  Object.keys(hilfenInput).forEach(i => {
+    const h      = hilfenInput[i];
     const locked = h.locked === 'on';
-    const lockCode = locked ? h.lockCode?.trim() || null : null;
-    const filesForHelp = files
-      .filter(f => f.fieldname === `hilfen[${index}][file]`)
-      .map(f => ({ path: `uploads/${f.filename}`, original: f.originalname }));
-
     hilfenArray.push({
-      name: h.name || `Hilfe ${parseInt(index) + 1}`,
+      name:    h.name || `Hilfe ${+i+1}`,
       content: h.content || '',
       locked,
-      lockCode,
-      files: filesForHelp
+      lockCode: locked ? h.lockCode : null,
+      files:   files
+        .filter(f => f.fieldname === `hilfen[${i}][file]`)
+        .map(f => ({ path: `uploads/${f.filename}`, original: f.originalname }))
     });
   });
 
-  const hilfeDoc = new Hilfe({ title, hilfen: hilfenArray, userId: req.session.userId });
+  const hilfeDoc = new Hilfe({
+    title,
+    subject,
+    hilfen: hilfenArray,
+    userId: req.session.userId
+  });
   await hilfeDoc.save();
 
   const fullUrl = `${req.protocol}://${req.get('host')}/hilfe/${hilfeDoc._id}`;
-  const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(fullUrl)}`;
-
+  const qrImage = await QRCode.toDataURL(fullUrl, { width:300, margin:2 });
   res.render('qrcode', { url: fullUrl, qrImage });
 });
 
-// 📖 Hilfe anzeigen
+// 🛠 Bearbeiten-Routen müssen vor Anzeige-Route stehen
+app.get('/hilfe/:id/bearbeiten', ensureAuth, async (req, res) => {
+  const hilfe = await Hilfe.findById(req.params.id);
+  if (!hilfe || !hilfe.userId.equals(req.session.userId)) {
+    return res.status(403).send('Nicht erlaubt');
+  }
+  res.render('hilfe-bearbeiten', { hilfe });
+});
+app.post('/hilfe/:id/bearbeiten', ensureAuth, upload.any(), async (req, res) => {
+  const hilfe = await Hilfe.findById(req.params.id);
+  if (!hilfe || !hilfe.userId.equals(req.session.userId)) {
+    return res.status(403).send('Nicht erlaubt');
+  }
+
+  hilfe.title = req.body.title;
+  const updated = [];
+  const files   = req.files || [];
+  const input   = req.body.hilfen || {};
+  Object.keys(input).forEach(i => {
+    const h      = input[i];
+    const locked = h.locked === 'on';
+    updated.push({
+      name:     h.name  || `Hilfe ${+i+1}`,
+      content:  h.content || '',
+      locked,
+      lockCode: locked ? h.lockCode : null,
+      files:    files
+        .filter(f => f.fieldname === `hilfen[${i}][file]`)
+        .map(f => ({ path: `uploads/${f.filename}`, original: f.originalname }))
+    });
+  });
+  hilfe.hilfen = updated;
+  await hilfe.save();
+  res.redirect('/dashboard');
+});
+
+// 📖 Hilfe anzeigen (immer neu gesperrt starten)
 app.get('/hilfe/:id', async (req, res) => {
   const hilfe = await Hilfe.findById(req.params.id);
   if (!hilfe) return res.status(404).send('Nicht gefunden');
 
-  if (!req.session.unlocked) req.session.unlocked = {};
-  if (!req.session.unlocked[hilfe.id]) req.session.unlocked[hilfe.id] = {};
-  const unlocked = hilfe.hilfen.map((_, i) => !!req.session.unlocked[hilfe.id][i]);
+  // alten Unlock-Status löschen, damit beim Neuladen alles wieder gesperrt ist
+  if (req.session.unlocked && req.session.unlocked[hilfe.id]) {
+    delete req.session.unlocked[hilfe.id];
+  }
 
-res.render('hilfe', { hilfe, unlocked, errors: {}, user: req.session.user || null });
+  // neu initialisieren: alle gesperrt
+  req.session.unlocked       = req.session.unlocked || {};
+  req.session.unlocked[hilfe.id] = {};
+  const unlocked = hilfe.hilfen.map(() => false);
+
+  res.render('hilfe', {
+    hilfe,
+    unlocked,
+    errors: {},
+    user: req.session.user || null
+  });
 });
 
-// 🔓 Hilfe entsperren – AJAX-kompatibel
+// 🔓 AJAX Entsperren
 app.post('/hilfe/:id/unlock/:index', async (req, res) => {
   const hilfe = await Hilfe.findById(req.params.id);
-  const idx = parseInt(req.params.index);
-  if (!hilfe || !hilfe.hilfen[idx]) return res.json({ success: false, error: 'Nicht gefunden' });
+  const idx   = +req.params.index;
+  if (!hilfe || !hilfe.hilfen[idx]) {
+    return res.json({ success:false, error:'Nicht gefunden' });
+  }
 
-  const enteredCode = (req.body.code || '').trim();
-  const neededCode = hilfe.hilfen[idx].lockCode;
+  const code = (req.body.code||'').trim();
+  if (!hilfe.hilfen[idx].lockCode) {
+    return res.json({ success:true, unlockedIndices:[] });
+  }
 
-  if (!neededCode) return res.json({ success: true, unlockedIndices: [] });
+  req.session.unlocked       = req.session.unlocked || {};
+  req.session.unlocked[hilfe.id] = req.session.unlocked[hilfe.id] || {};
 
-  if (!req.session.unlocked) req.session.unlocked = {};
-  if (!req.session.unlocked[hilfe.id]) req.session.unlocked[hilfe.id] = {};
-
-  if (enteredCode === neededCode) {
+  if (code === hilfe.hilfen[idx].lockCode) {
     const unlockedNow = [];
-    hilfe.hilfen.forEach((h, i) => {
-      if (h.lockCode === enteredCode) {
+    hilfe.hilfen.forEach((h,i) => {
+      if (h.lockCode === code) {
         req.session.unlocked[hilfe.id][i] = true;
         unlockedNow.push(i);
       }
     });
-    return res.json({ success: true, unlockedIndices: unlockedNow });
+    return res.json({ success:true, unlockedIndices:unlockedNow });
   } else {
-    return res.json({ success: false, error: 'Falscher Code' });
+    return res.json({ success:false, error:'Falscher Code' });
   }
 });
 
-// 🛠 Hilfe bearbeiten (Formular)
-app.get('/hilfe/bearbeiten/:id', ensureAuth, async (req, res) => {
+// 🗑️ Löschen
+app.post('/hilfe/:id/loeschen', ensureAuth, async (req, res) => {
   const hilfe = await Hilfe.findById(req.params.id);
   if (!hilfe || !hilfe.userId.equals(req.session.userId)) {
     return res.status(403).send('Nicht erlaubt');
   }
-
-  res.render('hilfe-bearbeiten', { hilfe });
-});
-
-app.post('/hilfe/bearbeiten/:id', ensureAuth, upload.any(), async (req, res) => {
-  const hilfe = await Hilfe.findById(req.params.id);
-  if (!hilfe || !hilfe.userId.equals(req.session.userId)) {
-    return res.status(403).send('Nicht erlaubt');
-  }
-
-  const { title } = req.body;
-  const hilfenInput = req.body.hilfen || {};
-  const files = req.files || [];
-  const updatedHilfen = [];
-
-  Object.keys(hilfenInput).forEach(index => {
-    const h = hilfenInput[index];
-    const locked = h.locked === 'on';
-    const lockCode = locked ? h.lockCode?.trim() || null : null;
-
-    const filesForHelp = files
-      .filter(f => f.fieldname === `hilfen[${index}][file]`)
-      .map(f => ({
-        path: `uploads/${f.filename}`,
-        original: f.originalname
-      }));
-
-    updatedHilfen.push({
-      name: h.name || `Hilfe ${parseInt(index) + 1}`,
-      content: h.content || '',
-      locked,
-      lockCode,
-      files: filesForHelp
-    });
-  });
-
-  hilfe.title = title;
-  hilfe.hilfen = updatedHilfen;
-  await hilfe.save();
-
+  await Hilfe.deleteOne({ _id:req.params.id });
   res.redirect('/dashboard');
 });
 

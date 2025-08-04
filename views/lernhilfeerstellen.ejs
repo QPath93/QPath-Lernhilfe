@@ -2,10 +2,11 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Meine Lernhilfe</title>
+  <title>Meine Lernhilfe erstellen</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
+    /* Grundstyles + Darkmode */
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
@@ -16,8 +17,6 @@
       min-height: 100vh;
       transition: background 0.3s, color 0.3s;
     }
-
-    /* Light Mode */
     body.light {
       background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
       color: #333;
@@ -27,8 +26,6 @@
       color: #333;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     }
-
-    /* Dark Mode */
     body.dark {
       background: linear-gradient(135deg, #111827, #1f2937);
       color: #e5e7eb;
@@ -54,6 +51,24 @@
       max-width: 180px;
     }
 
+    /* Zurück-Button */
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      background: transparent;
+      color: #3b82f6;
+      text-decoration: none;
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.3s, color 0.3s;
+    }
+    .back-btn:hover {
+      background: #3b82f6;
+      color: #fff;
+    }
+
     h1 {
       text-align: center;
       margin-bottom: 20px;
@@ -69,7 +84,8 @@
 
     input[type="text"],
     textarea,
-    input[type="password"] {
+    input[type="password"],
+    select {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
@@ -84,22 +100,33 @@
       border: 1px solid #4b5563;
       border-radius: 8px;
       margin-bottom: 20px;
+      position: relative;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 8px;
+      cursor: pointer;
     }
 
     .add-btn,
     .submit-btn {
       display: inline-block;
-      margin: 10px 0;
+      margin: 10px 5px 0 0;
       padding: 12px 20px;
       font-size: 16px;
       font-weight: 600;
       border-radius: 8px;
-      text-decoration: none;
       cursor: pointer;
       transition: background 0.3s;
       border: none;
     }
-
     .add-btn {
       background: #3b82f6;
       color: #fff;
@@ -107,23 +134,12 @@
     .add-btn:hover {
       background: #2563eb;
     }
-
     .submit-btn {
       background: #10b981;
       color: #fff;
     }
     .submit-btn:hover {
       background: #059669;
-    }
-
-    .remove-btn {
-      background: #ef4444;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 4px 8px;
-      cursor: pointer;
-      float: right;
     }
 
     .dropzone {
@@ -155,7 +171,7 @@
       cursor: pointer;
     }
 
-    .hint-icon {
+    .hint-icon, .hint-icon2 {
       display: inline-block;
       width: 18px;
       height: 18px;
@@ -170,211 +186,193 @@
       position: relative;
     }
     .hint-icon:hover::after {
-      content: "Mit der Codesperre können Hilfen gesperrt werden. Erst nach Eingabe eines gültigen Codes können gesperrte Inhalte angezeigt werden. Für jede Hilfe kann ein individueller Code vergeben werden – gleichzeitig ist es möglich, mehrere Hilfen mit demselben Code zu sichern. Wird eine Hilfe entsperrt, werden automatisch alle Hilfen freigegeben, die denselben Code verwenden.";
-      position: absolute;
-      top: -5px;
-      left: 30px;
-      width: 250px;
-      background: rgba(0,0,0,0.8);
-      color: #fff;
-      padding: 8px;
-      border-radius: 8px;
-      font-size: 12px;
-      line-height: 1.4;
-      z-index: 100;
-    } 
-
-.hint-icon2 {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      background: #3b82f6;
-      color: #fff;
-      border-radius: 50%;
-      text-align: center;
-      font-size: 12px;
-      line-height: 18px;
-      margin-left: 10px;
-      cursor: pointer;
-      position: relative;
+      content: "Mit der Codesperre können Hilfen gesperrt werden…";
+      position: absolute; top: -5px; left: 30px;
+      width: 250px; background: rgba(0,0,0,0.8);
+      color: #fff; padding: 8px; border-radius: 8px;
+      font-size: 12px; line-height: 1.4; z-index: 100;
     }
     .hint-icon2:hover::after {
       content: "Dateien können per Drag & Drop hinzugefügt werden.";
-      position: absolute;
-      top: -5px;
-      left: 30px;
-      width: 250px;
-      background: rgba(0,0,0,0.8);
-      color: #fff;
-      padding: 8px;
-      border-radius: 8px;
-      font-size: 12px;
-      line-height: 1.4;
-      z-index: 100;
+      position: absolute; top: -5px; left: 30px;
+      width: 250px; background: rgba(0,0,0,0.8);
+      color: #fff; padding: 8px; border-radius: 8px;
+      font-size: 12px; line-height: 1.4; z-index: 100;
     }
 
     .theme-toggle {
       position: fixed;
       top: 15px;
       right: 15px;
-      font-size: 14px;
-      cursor: pointer;
-      padding: 8px 14px;
-      border-radius: 8px;
+      width: 36px; height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: rgba(0,0,0,0.1);
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s;
+      backdrop-filter: blur(4px);
+      z-index: 10;
     }
-
-    body.dark .theme-toggle {
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-    }
+    body.light .theme-toggle { color: #111; }
+    body.dark  .theme-toggle { color: #fff; background: rgba(255,255,255,0.1); }
+    .theme-toggle:hover { background: rgba(0,0,0,0.2); }
   </style>
 </head>
 <body class="light">
-  <!-- Darkmode Toggle -->
- <div class="theme-toggle" id="themeToggle">🌙 Dark Mode</div>
+  <div class="theme-toggle" id="themeToggle">🌙</div>
 
   <div class="container">
     <img src="/logo.png" alt="Logo" class="logo">
-    <h1>Meine Lernhilfe</h1>
+    <a href="/dashboard" class="back-btn">Zurück zu meinen Lernhilfen</a>
+    <h1>Meine Lernhilfe erstellen</h1>
 
     <form id="lernForm" action="/create" method="POST" enctype="multipart/form-data">
       <label for="title">Titel der Lernhilfe</label>
       <input type="text" name="title" id="title" required>
 
+      <label for="subject">Fach auswählen</label>
+      <select name="subject" id="subject" onchange="toggleCustomSubject()" required>
+        <option value="">– Bitte wählen –</option>
+        <option>Biologie</option>
+        <option>Chemie</option>
+        <option>Deutsch</option>
+        <option>Englisch</option>
+        <option>Französisch</option>
+        <option>Geschichte</option>
+        <option>Geographie</option>
+        <option>Gesellschaft</option>
+        <option>Physik</option>
+        <option>Informatik</option>
+        <option>Kunst</option>
+        <option>Latein</option>
+        <option>Mathematik</option>
+        <option>Musik</option>
+        <option>Naturwissenschaften</option>
+        <option>Naturwissenschaft und Technik</option>
+        <option>PGW</option>
+        <option>Philosophie</option>
+        <option>Politik</option>
+        <option>Psychologie</option>
+        <option>Spanisch</option>
+        <option>Sport</option>
+        <option>Religion</option>
+        <option value="Sonstiges">Sonstiges</option>
+      </select>
+
+      <div id="customSubjectWrapper" style="display:none; margin-top:10px;">
+        <label for="customSubject">Fach (frei eingeben)</label>
+        <input type="text" name="customSubject" id="customSubject"
+               placeholder="z. B. Technik, Philosophie...">
+      </div>
+
       <div id="hilfen-container"></div>
 
       <button type="button" class="add-btn" id="addHilfeBtn">+ Weitere Hilfe hinzufügen</button>
-      <button type="submit" class="submit-btn"> Lernhilfe erstellen</button>
+      <button type="submit" class="submit-btn">Lernhilfe erstellen</button>
     </form>
   </div>
 
   <script>
+    // Zusätzliche Hilfen
     const hilfenContainer = document.getElementById('hilfen-container');
-    const addHilfeBtn = document.getElementById('addHilfeBtn');
+    const addHilfeBtn    = document.getElementById('addHilfeBtn');
     let hilfeCount = 0;
-
-    function createHilfeBox(index) {
+    function createHilfeBox(i) {
       const box = document.createElement('div');
       box.className = 'hilfe-box';
       box.innerHTML = `
-        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">❌ Entfernen</button>
+        <button type="button" class="remove-btn"
+          onclick="this.parentElement.remove()">❌ Entfernen</button>
         <label>Name der Hilfe</label>
-        <input type="text" name="hilfen[${index}][name]" placeholder="Name der Hilfe">
-
+        <input type="text" name="hilfen[${i}][name]" placeholder="Name der Hilfe">
         <label>Inhalt</label>
-        <textarea name="hilfen[${index}][content]" rows="3" placeholder="Beschreibung oder Erklärung"></textarea>
-
+        <textarea name="hilfen[${i}][content]" rows="3"
+                  placeholder="Beschreibung oder Erklärung"></textarea>
         <label>
-          <input type="checkbox" name="hilfen[${index}][locked]"> Mit Code sperren?
-          <span class="hint-icon">?</span>
+          <input type="checkbox" name="hilfen[${i}][locked]">
+          Mit Code sperren?<span class="hint-icon">?</span>
         </label>
-        <input type="password" name="hilfen[${index}][lockCode]" placeholder="Entsperrcode (optional)">
-
+        <input type="password" name="hilfen[${i}][lockCode]"
+               placeholder="Entsperrcode (optional)">
         <label>Dateien<span class="hint-icon2">?</span></label>
-        <div class="dropzone" data-index="${index}">
-          <p>Dateien hier ablegen oder hier klicken um Dateien hochzuladen</p>
-          <input type="file" name="hilfen[${index}][file]" multiple hidden>
+        <div class="dropzone" data-index="${i}">
+          <p>Dateien hier ablegen oder klicken</p>
+          <input type="file" name="hilfen[${i}][file]" multiple hidden>
         </div>
-        <ul class="file-list" data-index="${index}"></ul>
+        <ul class="file-list" data-index="${i}"></ul>
       `;
       return box;
     }
-
     addHilfeBtn.addEventListener('click', () => {
-      const newBox = createHilfeBox(hilfeCount++);
-      hilfenContainer.appendChild(newBox);
-      initDropzone(newBox.querySelector('.dropzone'));
+      const box = createHilfeBox(hilfeCount++);
+      hilfenContainer.appendChild(box);
+      initDropzone(box.querySelector('.dropzone'));
     });
-
-    // Initial eine Hilfe hinzufügen
     addHilfeBtn.click();
 
-    // Drag & Drop Initialisierung
-    function initDropzone(dropzone) {
-      const index = dropzone.dataset.index;
-      const fileInput = dropzone.querySelector('input[type="file"]');
-      const fileListContainer = document.querySelector(`.file-list[data-index="${index}"]`);
-      let filesArray = [];
-
-      // Klick öffnet Dateiauswahl
-      dropzone.addEventListener('click', () => fileInput.click());
-
-      // Dateien via Dateiauswahl hinzufügen
-      fileInput.addEventListener('change', (e) => {
-        addFiles([...e.target.files]);
-      });
-
-      // Drag Over Style
-      dropzone.addEventListener('dragover', (e) => {
+    function initDropzone(dz) {
+      const idx = dz.dataset.index;
+      const inp = dz.querySelector('input[type=file]');
+      const list= document.querySelector(`.file-list[data-index="${idx}"]`);
+      let files = [];
+      dz.addEventListener('click', ()=> inp.click());
+      inp.addEventListener('change', e=> addFiles([...e.target.files]));
+      dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('dragover'); });
+      dz.addEventListener('dragleave', ()=> dz.classList.remove('dragover'));
+      dz.addEventListener('drop', e=> {
         e.preventDefault();
-        dropzone.classList.add('dragover');
+        dz.classList.remove('dragover');
+        addFiles([...e.dataTransfer.files]);
       });
-
-      dropzone.addEventListener('dragleave', () => {
-        dropzone.classList.remove('dragover');
-      });
-
-      // Dateien per Drag & Drop
-      dropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('dragover');
-        const droppedFiles = [...e.dataTransfer.files];
-        addFiles(droppedFiles);
-      });
-
-      function addFiles(newFiles) {
-        newFiles.forEach(file => {
-          if (!filesArray.find(f => f.name === file.name && f.size === file.size)) {
-            filesArray.push(file);
-          }
+      function addFiles(newF) {
+        newF.forEach(f=>{
+          if (!files.find(x=> x.name===f.name && x.size===f.size)) files.push(f);
         });
-        updateFileList();
+        updateList();
       }
-
-      function updateFileList() {
-        fileListContainer.innerHTML = '';
-        filesArray.forEach((file, idx) => {
-          const li = document.createElement('li');
-          li.textContent = file.name + ' ';
-          const removeBtn = document.createElement('button');
-          removeBtn.textContent = '❌';
-          removeBtn.addEventListener('click', () => {
-            filesArray.splice(idx, 1);
-            updateFileList();
-          });
-          li.appendChild(removeBtn);
-          fileListContainer.appendChild(li);
+      function updateList() {
+        list.innerHTML='';
+        const dt=new DataTransfer();
+        files.forEach((f,i)=>{
+          const li=document.createElement('li');
+          li.textContent=f.name+' ';
+          const b=document.createElement('button');
+          b.textContent='❌';
+          b.onclick=()=>{ files.splice(i,1); updateList(); };
+          li.appendChild(b);
+          list.appendChild(li);
+          dt.items.add(f);
         });
-
-        // Input-Files neu setzen
-        const dataTransfer = new DataTransfer();
-        filesArray.forEach(f => dataTransfer.items.add(f));
-        fileInput.files = dataTransfer.files;
+        inp.files=dt.files;
       }
     }
 
-
-    const body = document.body;
-    if (localStorage.getItem('theme') === 'dark') {
-      body.classList.remove('light');
-      body.classList.add('dark');
-      themeToggle.textContent = '☀️ Light Mode';
-    }
-
-    themeToggle.addEventListener('click', () => {
-      if (body.classList.contains('light')) {
-        body.classList.remove('light');
-        body.classList.add('dark');
-        themeToggle.textContent = '☀️ Light Mode';
-        localStorage.setItem('theme', 'dark');
+    function toggleCustomSubject() {
+      const sel = document.getElementById('subject').value;
+      const w   = document.getElementById('customSubjectWrapper');
+      const i   = document.getElementById('customSubject');
+      if (sel==='Sonstiges') {
+        w.style.display='block'; i.required=true;
       } else {
-        body.classList.remove('dark');
-        body.classList.add('light');
-        themeToggle.textContent = '🌙 Dark Mode';
-        localStorage.setItem('theme', 'light');
+        w.style.display='none'; i.required=false; i.value='';
       }
-    });
+    }
+
+    // Dark/Light Switch
+    const themeToggle = document.getElementById('themeToggle');
+    const bodyElem    = document.body;
+    function applyTheme(t) {
+      bodyElem.classList.replace(t==='dark'?'light':'dark', t);
+      themeToggle.textContent = t==='dark' ? '☀️' : '🌙';
+      localStorage.setItem('theme', t);
+    }
+    themeToggle.addEventListener('click', ()=>
+      applyTheme(bodyElem.classList.contains('light')?'dark':'light')
+    );
+    applyTheme(localStorage.getItem('theme')||'light');
   </script>
 </body>
 </html>

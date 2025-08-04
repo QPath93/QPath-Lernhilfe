@@ -5,127 +5,245 @@
   <title><%= hilfe.title %> – Bearbeiten</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
+    /* Grundstyles + Darkmode */
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      background: #f3f4f6;
-      color: #111;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.light {
+      background: linear-gradient(135deg, #e0e7ff, #f0f4ff);
+      color: #333;
+    }
+    body.light .container {
+      background: #fff;
+      color: #333;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    body.dark {
+      background: linear-gradient(135deg, #111827, #1f2937);
+      color: #e5e7eb;
+    }
+    body.dark .container {
+      background: #1f2937;
+      color: #f3f4f6;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
 
     .container {
       max-width: 800px;
+      width: 90%;
       margin: 40px auto;
-      padding: 20px;
-      background: #fff;
+      padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .logo {
+      display: block;
+      margin: 0 auto 15px;
+      max-width: 180px;
+    }
+
+    /* Zurück-Button */
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 8px 16px;
+      background: transparent;
+      color: #3b82f6;
+      text-decoration: none;
+      border: 2px solid #3b82f6;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.3s, color 0.3s;
+    }
+    .back-btn:hover {
+      background: #3b82f6;
+      color: #fff;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
+      font-weight: 600;
     }
 
     label {
-      display: block;
-      margin: 15px 0 5px;
       font-weight: 600;
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
     }
 
     input[type="text"],
     textarea,
-    input[type="password"] {
+    input[type="password"],
+    select {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 14px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      background: #fff;
+      color: #000;
+    }
+    body.dark input,
+    body.dark textarea,
+    body.dark select {
+      background: #374151;
+      color: #f3f4f6;
+      border-color: #4b5563;
     }
 
     .hilfe-section {
-      border: 1px solid #ddd;
       padding: 15px;
-      margin-bottom: 20px;
+      border: 1px solid #4b5563;
       border-radius: 8px;
+      margin-bottom: 20px;
+      position: relative;
       background: #f9fafb;
     }
-
-    .file-preview {
-      margin-top: 10px;
+    body.dark .hilfe-section {
+      background: #27303f;
     }
 
-    .file-preview a {
-      color: #3b82f6;
-      text-decoration: none;
-    }
-
-    .file-preview a:hover {
-      text-decoration: underline;
-    }
-
-    button {
-      background-color: #3b82f6;
-      color: white;
-      padding: 12px 20px;
+    .remove-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #ef4444;
+      color: #fff;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 6px;
+      padding: 4px 8px;
       cursor: pointer;
-      margin-top: 20px;
     }
 
-    button:hover {
-      background-color: #2563eb;
-    }
-
-    .back-link {
+    .submit-btn {
       display: inline-block;
-      margin-bottom: 20px;
-      text-decoration: none;
-      color: #3b82f6;
+      margin-top: 20px;
+      padding: 12px 20px;
+      font-size: 16px;
       font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      background: #10b981;
+      color: #fff;
+      border: none;
     }
+    .submit-btn:hover {
+      background: #059669;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.1);
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.3s;
+      backdrop-filter: blur(4px);
+      z-index: 10;
+    }
+    body.light .theme-toggle { color: #111; }
+    body.dark  .theme-toggle { color: #fff; background: rgba(255,255,255,0.1); }
+    .theme-toggle:hover { background: rgba(0,0,0,0.2); }
   </style>
 </head>
-<body>
+<body class="light">
+  <div class="theme-toggle" id="themeToggle">🌙</div>
+
   <div class="container">
-    <a class="back-link" href="/dashboard">← Zurück zum Dashboard</a>
+    <img src="/logo.png" alt="Logo" class="logo">
+    <a href="/dashboard" class="back-btn">Zurück zu meinen Lernhilfen</a>
     <h1>Lernhilfe bearbeiten</h1>
 
     <form action="/hilfe/<%= hilfe._id %>/bearbeiten" method="POST">
-      <label for="title">Titel der Lernhilfe:</label>
+      <label for="title">Titel der Lernhilfe</label>
       <input type="text" name="title" id="title" value="<%= hilfe.title %>" required />
+
+      <!-- Fachauswahl -->
+      <label for="subject">Fach auswählen</label>
+      <select name="subject" id="subject" onchange="toggleCustomSubject()" required>
+        <option value="">– Bitte wählen –</option>
+        <% ['Biologie','Chemie','Deutsch','Englisch','Französisch','Geschichte','Geographie',
+            'Gesellschaft','Physik','Informatik','Kunst','Latein','Mathematik','Musik',
+            'Naturwissenschaften','Naturwissenschaft und Technik','PGW','Philosophie',
+            'Politik','Psychologie','Spanisch','Sport','Religion'].forEach(s => { %>
+          <option value="<%= s %>" <%= hilfe.subject===s?'selected':'' %>><%= s %></option>
+        <% }) %>
+        <option value="Sonstiges" <%= !['Biologie','Chemie',/* …alle oben… */].includes(hilfe.subject)?'selected':'' %>>
+          Sonstiges
+        </option>
+      </select>
+      <div id="customSubjectWrapper" style="display:<%= ['Biologie','Chemie',/*…*/].includes(hilfe.subject)?'none':'block' %>;">
+        <label for="customSubject">Fach (frei eingeben)</label>
+        <input type="text" name="customSubject" id="customSubject"
+               placeholder="z. B. Technik, Philosophie…" value="<%= !['Biologie','Chemie',/*…*/].includes(hilfe.subject)?hilfe.subject:'' %>">
+      </div>
 
       <% hilfe.hilfen.forEach((h, idx) => { %>
         <div class="hilfe-section">
-          <label for="name-<%= idx %>">Titel Hilfe <%= idx + 1 %>:</label>
+          <label for="name-<%= idx %>">Name der Hilfe <%= idx+1 %></label>
           <input type="text" name="hilfen[<%= idx %>][name]" id="name-<%= idx %>" value="<%= h.name %>" required />
 
-          <label for="content-<%= idx %>">Inhalt:</label>
+          <label for="content-<%= idx %>">Inhalt</label>
           <textarea name="hilfen[<%= idx %>][content]" id="content-<%= idx %>" rows="4"><%= h.content %></textarea>
 
           <label>
-            <input type="checkbox" name="hilfen[<%= idx %>][locked]" <%= h.locked ? 'checked' : '' %> />
-            Gesperrt
+            <input type="checkbox" name="hilfen[<%= idx %>][locked]" <%= h.locked?'checked':'' %> />
+            Mit Code sperren?
           </label>
+          <input type="password" name="hilfen[<%= idx %>][lockCode]" placeholder="Entsperrcode (optional)" value="<%= h.lockCode||'' %>" />
 
-          <label for="lockCode-<%= idx %>">Code zum Entsperren:</label>
-          <input type="password" name="hilfen[<%= idx %>][lockCode]" id="lockCode-<%= idx %>" value="<%= h.lockCode || '' %>" />
-
-          <% if (h.files && h.files.length > 0) { %>
+          <% if (h.files && h.files.length>0) { %>
             <div class="file-preview">
-              <strong>Dateien:</strong><br />
-              <% h.files.forEach(file => { %>
-                <a href="/<%= file.path %>" target="_blank"><%= file.original %></a><br />
+              <strong>Dateien:</strong><br/>
+              <% h.files.forEach(f=>{ %>
+                <a href="/<%= f.path %>" target="_blank"><%= f.original %></a><br/>
               <% }) %>
             </div>
           <% } %>
         </div>
       <% }) %>
 
-      <button type="submit">Speichern</button>
+      <button type="submit" class="submit-btn">Speichern</button>
     </form>
   </div>
+
+  <script>
+    // Custom-Subject anzeigen/verbergen
+    function toggleCustomSubject(){
+      const s = document.getElementById('subject').value;
+      document.getElementById('customSubjectWrapper').style.display = s==='Sonstiges'?'block':'none';
+    }
+
+    // Dark/Light Toggle
+    const toggle     = document.getElementById('themeToggle');
+    const bodyElem   = document.body;
+    function applyTheme(t){
+      bodyElem.classList.replace(t==='dark'?'light':'dark',t);
+      toggle.textContent = t==='dark'?'☀️':'🌙';
+      localStorage.setItem('theme',t);
+    }
+    toggle.addEventListener('click',()=>applyTheme(bodyElem.classList.contains('light')?'dark':'light'));
+    applyTheme(localStorage.getItem('theme')||'light');
+  </script>
 </body>
 </html>
